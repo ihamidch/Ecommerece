@@ -25,6 +25,11 @@ STRIPE_SECRET_KEY=<optional>
    - `https://<backend-domain>/api/health` should return `{ "status": "ok" }`.
    - `https://<backend-domain>/api/products` should list demo items on first request if the database was empty (auto catalog seed). Set `SKIP_AUTO_DEMO_SEED=true` in Vercel if you want an empty catalog instead.
 
+**Current production example**
+
+- Backend: `https://backend-two-weld-46.vercel.app`
+- Frontend: `https://ecommerece-mern-web.vercel.app` (build with `VITE_API_URL=https://backend-two-weld-46.vercel.app/api`)
+
 ## 2) Deploy Frontend
 
 1. In Vercel, create/import second project from the same repo.

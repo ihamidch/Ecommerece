@@ -4,9 +4,11 @@ Full-stack e-commerce platform built with MERN where users can browse products, 
 
 ## Live Demo
 
-- App (Frontend): https://frontend-kappa-amber-29.vercel.app
-- API (Backend): https://backend-pi-khaki-68.vercel.app
+- App (Frontend): https://ecommerece-mern-web.vercel.app
+- API (Backend): https://backend-two-weld-46.vercel.app
 - Repository: https://github.com/ihamidch/Ecommerece
+
+These are **dedicated Vercel projects** for this e-commerce app. Older URLs that pointed at generic `frontend` / `backend` projects may have shown a different repo (for example Freelancer Marketplace) because the same deployment names were reused.
 
 ## Features
 
