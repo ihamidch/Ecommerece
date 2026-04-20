@@ -23,6 +23,7 @@ STRIPE_SECRET_KEY=<optional>
 
 4. Deploy and verify:
    - `https://<backend-domain>/api/health` should return `{ "status": "ok" }`.
+   - `https://<backend-domain>/api/products` should list demo items on first request if the database was empty (auto catalog seed). Set `SKIP_AUTO_DEMO_SEED=true` in Vercel if you want an empty catalog instead.
 
 ## 2) Deploy Frontend
 

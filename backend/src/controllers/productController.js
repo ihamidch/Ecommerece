@@ -1,7 +1,10 @@
 const Product = require("../models/Product");
+const { ensureDemoCatalog } = require("../services/ensureDemoCatalog");
 
 async function getProducts(req, res, next) {
   try {
+    await ensureDemoCatalog();
+
     const { search, category, minPrice, maxPrice } = req.query;
     const filter = {};
 
