@@ -33,7 +33,8 @@ const localDevOrigins = [
 const allowedOrigins = [
   ...new Set([...configuredOrigins, ...(isProduction ? [] : localDevOrigins)]),
 ];
-const allowPreviewOrigins = !isProduction || process.env.ALLOW_PREVIEW_ORIGINS === "true";
+// Default to allowing Vercel/Render preview domains unless explicitly disabled.
+const allowPreviewOrigins = !isProduction || process.env.ALLOW_PREVIEW_ORIGINS !== "false";
 
 app.use(
   cors({

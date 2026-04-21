@@ -38,7 +38,7 @@ function Layout() {
 
           <button
             type="button"
-            className="inline-flex rounded-lg p-2 text-slate-200 hover:bg-white/10 lg:hidden"
+            className="inline-flex rounded-lg border border-white/10 bg-white/5 p-2 text-slate-200 transition hover:bg-white/10 lg:hidden"
             aria-expanded={menuOpen}
             aria-label="Toggle menu"
             onClick={() => setMenuOpen((o) => !o)}
@@ -54,7 +54,7 @@ function Layout() {
 
           <nav
             className={clsx(
-              'absolute left-0 right-0 top-full flex flex-col gap-1 border-b border-white/10 bg-slate-900/98 px-4 py-3 lg:static lg:flex lg:flex-row lg:items-center lg:border-0 lg:bg-transparent lg:p-0',
+              'absolute left-3 right-3 top-[calc(100%+0.5rem)] z-50 flex flex-col gap-1 rounded-2xl border border-white/10 bg-slate-900/98 p-3 shadow-2xl shadow-slate-950/60 backdrop-blur-xl lg:static lg:flex lg:flex-row lg:items-center lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none',
               menuOpen ? 'flex' : 'hidden lg:flex'
             )}
           >
@@ -82,7 +82,7 @@ function Layout() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="rounded-lg px-3 py-2 text-left text-sm font-semibold text-amber-200 hover:bg-white/10 lg:text-center"
+                  className="rounded-lg px-3 py-2 text-left text-sm font-semibold text-amber-200 transition hover:bg-white/10 lg:text-center"
                 >
                   Log out
                 </button>
@@ -94,6 +94,14 @@ function Layout() {
             )}
           </nav>
         </div>
+        {menuOpen ? (
+          <button
+            type="button"
+            aria-label="Close mobile menu"
+            className="fixed inset-0 z-40 bg-slate-950/45 lg:hidden"
+            onClick={() => setMenuOpen(false)}
+          />
+        ) : null}
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
