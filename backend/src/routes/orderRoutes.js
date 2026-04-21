@@ -13,9 +13,11 @@ const router = express.Router();
 
 router.post("/", protect, createOrder);
 router.get("/my-orders", protect, getMyOrders);
+router.get("/user", protect, getMyOrders);
 router.get("/:id", protect, getOrderById);
 router.post("/payment-intent", protect, createPaymentIntent);
 router.get("/", protect, adminOnly, getAllOrders);
+router.put("/:id/status", protect, adminOnly, updateOrderStatus);
 router.patch("/:id/status", protect, adminOnly, updateOrderStatus);
 
 module.exports = router;

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import api from '../api/client'
+import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { getProductImage } from '../utils/productImage'
 
@@ -23,10 +24,13 @@ const FIELD_LABELS = {
 
 function CheckoutPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { cartItems, subtotal, clearCart } = useCart()
   const [shippingAddress, setShippingAddress] = useState(initialAddress)
   const [paymentMethod, setPaymentMethod] = useState('mock')
   const [loading, setLoading] = useState(false)
+  const shippingCost = 0
+  const finalTotal = subtotal + shippingCost
 
   const handleChange = (event) => {
     setShippingAddress((prev) => ({ ...prev, [event.target.name]: event.target.value }))
@@ -78,6 +82,18 @@ function CheckoutPage() {
       <div className="lg:col-span-2">
         <h1 className="text-2xl font-bold text-slate-900">Checkout</h1>
         <form className="mt-6 space-y-8" onSubmit={handleSubmit}>
+          <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">Customer details</h2>
+            <div className="mt-4 grid gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-4 text-sm sm:grid-cols-2">
+              <p className="text-slate-600">
+                Name: <span className="font-semibold text-slate-900">{user?.name || 'Guest'}</span>
+              </p>
+              <p className="text-slate-600">
+                Email: <span className="font-semibold text-slate-900">{user?.email || 'Not available'}</span>
+              </p>
+            </div>
+          </section>
+
           <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">Shipping address</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -154,10 +170,20 @@ function CheckoutPage() {
               </li>
             ))}
           </ul>
-          <div className="mt-6 border-t border-slate-200 pt-4">
-            <div className="flex justify-between text-base font-bold text-slate-900">
-              <span>Total</span>
-              <span>${subtotal.toFixed(2)}</span>
+          <div className="mt-6 border-t border-slate-200 pt-4 text-sm">
+            <div className="flex items-center justify-between text-slate-600">
+              <span>Subtotal</span>
+              <span className="font-semibold text-slate-900">${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-slate-600">
+              <span>Shipping</span>
+              <span className="font-semibold text-emerald-700">
+                {shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}
+              </span>
+            </div>
+            <div className="mt-3 flex justify-between border-t border-slate-100 pt-3 text-base font-bold text-slate-900">
+              <span>Final total</span>
+              <span className="text-indigo-700">${finalTotal.toFixed(2)}</span>
             </div>
           </div>
         </div>

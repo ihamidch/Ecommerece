@@ -13,7 +13,7 @@ function UserDashboardPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const { data } = await api.get('/orders/my-orders')
+        const { data } = await api.get('/orders/user')
         setOrders(data)
       } catch (e) {
         toast.error(e.response?.data?.message || 'Could not load orders')

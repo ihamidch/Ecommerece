@@ -61,7 +61,7 @@ function OrderSuccessPage() {
     <div className="animate-enter mx-auto grid max-w-4xl gap-6 lg:grid-cols-3">
       <section className="surface-card lg:col-span-2 p-8">
         <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-600">Order confirmed</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Thank you for your purchase</h1>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Order Placed Successfully</h1>
         <p className="mt-3 text-sm text-slate-600">
           Your order has been created successfully and is now being processed.
         </p>
