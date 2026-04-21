@@ -9,9 +9,17 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const { notFound } = require("./middleware/notFound");
 
 const app = express();
+const isProduction = process.env.NODE_ENV === "production";
 
-const allowedOrigins = [
+const configuredOrigins = [
   process.env.CLIENT_URL,
+  ...(process.env.CLIENT_URLS || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+];
+
+const localDevOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
@@ -20,14 +28,24 @@ const allowedOrigins = [
   "http://127.0.0.1:5174",
   "http://127.0.0.1:5175",
   "http://127.0.0.1:5176",
-].filter(Boolean);
+];
+
+const allowedOrigins = [
+  ...new Set([...configuredOrigins, ...(isProduction ? [] : localDevOrigins)]),
+];
+const allowPreviewOrigins = !isProduction || process.env.ALLOW_PREVIEW_ORIGINS === "true";
 
 app.use(
   cors({
     origin(origin, callback) {
-      const isVercelPreview = origin?.endsWith(".vercel.app");
-      const isRender = origin?.endsWith(".onrender.com");
-      if (!origin || allowedOrigins.includes(origin) || isVercelPreview || isRender) {
+      const isPreviewOrigin =
+        origin?.endsWith(".vercel.app") || origin?.endsWith(".onrender.com");
+
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        (allowPreviewOrigins && isPreviewOrigin)
+      ) {
         return callback(null, true);
       }
       return callback(new Error(`CORS blocked origin: ${origin}`));
