@@ -78,12 +78,26 @@ function CheckoutPage() {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
+    <div className="space-y-8">
+      <section className="surface-card p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-wide sm:text-sm">
+          <span className="rounded-full bg-indigo-100 px-3 py-1 text-indigo-700">Cart</span>
+          <span className="h-px flex-1 bg-slate-200" />
+          <span className="rounded-full bg-indigo-600 px-3 py-1 text-white">Checkout</span>
+          <span className="h-px flex-1 bg-slate-200" />
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-500">Success</span>
+        </div>
+      </section>
+
+      <div className="grid gap-8 lg:grid-cols-3">
       <div className="lg:col-span-2">
-        <h1 className="text-2xl font-bold text-slate-900">Checkout</h1>
+        <div>
+          <p className="kicker">Checkout</p>
+          <h1 className="text-2xl font-bold text-slate-900">Checkout</h1>
+        </div>
         <form className="mt-6 space-y-8" onSubmit={handleSubmit}>
           <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Customer details</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Shipping info</h2>
             <div className="mt-4 grid gap-3 rounded-xl border border-slate-100 bg-slate-50/80 p-4 text-sm sm:grid-cols-2">
               <p className="text-slate-600">
                 Name: <span className="font-semibold text-slate-900">{user?.name || 'Guest'}</span>
@@ -95,7 +109,7 @@ function CheckoutPage() {
           </section>
 
           <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Shipping address</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Address details</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {Object.keys(initialAddress).map((field) => (
                 <label key={field} className="block text-sm sm:col-span-1">
@@ -139,7 +153,7 @@ function CheckoutPage() {
           <button
             type="submit"
             disabled={loading}
-            className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-700 disabled:opacity-60"
+            className="btn-primary px-8 py-3 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? 'Placing order…' : 'Place order'}
           </button>
@@ -188,6 +202,7 @@ function CheckoutPage() {
           </div>
         </div>
       </aside>
+      </div>
     </div>
   )
 }

@@ -77,6 +77,7 @@ function ProductDetailsPage() {
         />
       </div>
       <div>
+        <p className="kicker">Product details</p>
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-700">
             {product.category}
@@ -100,21 +101,37 @@ function ProductDetailsPage() {
           <label htmlFor="qty" className="text-sm font-medium text-slate-700">
             Quantity
           </label>
-          <input
-            id="qty"
-            type="number"
-            min={1}
-            max={maxQty}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.min(maxQty, Math.max(1, Number(e.target.value) || 1)))}
-            className="w-24 rounded-xl border border-slate-200 px-3 py-2 text-center text-sm font-semibold outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15"
-          />
+          <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50">
+            <button
+              type="button"
+              className="px-3 py-2 text-lg font-bold text-slate-600 transition hover:bg-white"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            >
+              −
+            </button>
+            <input
+              id="qty"
+              type="number"
+              min={1}
+              max={maxQty}
+              value={quantity}
+              onChange={(e) => setQuantity(Math.min(maxQty, Math.max(1, Number(e.target.value) || 1)))}
+              className="w-16 border-x border-slate-200 bg-white px-2 py-2 text-center text-sm font-semibold outline-none"
+            />
+            <button
+              type="button"
+              className="px-3 py-2 text-lg font-bold text-slate-600 transition hover:bg-white"
+              onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
+            >
+              +
+            </button>
+          </div>
         </div>
 
         <div className="mt-8 flex flex-wrap gap-3">
           <button
             type="button"
-            className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-700"
+            className="btn-primary px-8 py-3"
             onClick={() => {
               addToCart(product, quantity)
               toast.success('Added to cart', { description: `${quantity} × ${product.name}` })
@@ -124,7 +141,7 @@ function ProductDetailsPage() {
           </button>
           <Link
             to="/cart"
-            className="rounded-xl border border-slate-200 px-8 py-3 text-sm font-semibold text-slate-800 transition hover:border-indigo-200 hover:bg-indigo-50/40"
+            className="btn-secondary px-8 py-3"
           >
             View cart
           </Link>

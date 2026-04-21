@@ -45,7 +45,7 @@ const CartItem = memo(function CartItem({
           <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50">
             <button
               type="button"
-              className="px-3 py-1.5 text-lg font-semibold text-slate-600 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="px-3 py-1.5 text-lg font-semibold text-slate-600 transition hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Decrease quantity"
               disabled={item.quantity <= 1}
               onClick={onDecrease}
@@ -57,7 +57,7 @@ const CartItem = memo(function CartItem({
             </span>
             <button
               type="button"
-              className="px-3 py-1.5 text-lg font-semibold text-slate-600 transition hover:bg-white"
+              className="px-3 py-1.5 text-lg font-semibold text-slate-600 transition hover:bg-white active:scale-95"
               aria-label="Increase quantity"
               onClick={onIncrease}
             >
@@ -136,7 +136,10 @@ function CartPage() {
     <div className="grid gap-8 lg:grid-cols-3 lg:items-start">
       <section className="lg:col-span-2">
         <div className="flex items-end justify-between gap-3">
-          <h1 className="text-2xl font-bold text-slate-900">Shopping cart</h1>
+          <div>
+            <p className="kicker">Cart</p>
+            <h1 className="text-2xl font-bold text-slate-900">Shopping cart</h1>
+          </div>
           <p className="text-sm font-medium text-slate-500">{count} item(s)</p>
         </div>
         <ul className="mt-6 space-y-4">
@@ -163,7 +166,7 @@ function CartPage() {
       </section>
 
       <aside className="lg:col-span-1">
-        <div className="surface-card sticky top-28 p-6">
+        <div className="surface-card sticky top-28 p-6 shadow-card-hover">
           <h2 className="text-lg font-semibold text-slate-900">Order summary</h2>
           <div className="mt-5 space-y-2 border-b border-slate-200 pb-4 text-sm">
             <div className="flex justify-between text-slate-600">
@@ -182,7 +185,7 @@ function CartPage() {
           <p className="mt-2 text-xs text-slate-500">Taxes are calculated during checkout.</p>
           <button
             type="button"
-            className="mt-6 w-full rounded-xl bg-indigo-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-700"
+            className="btn-primary mt-6 w-full py-3.5"
             onClick={() => navigate('/checkout')}
           >
             Proceed to checkout
