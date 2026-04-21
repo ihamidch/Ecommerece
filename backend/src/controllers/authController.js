@@ -8,6 +8,10 @@ function getToken(userId) {
   });
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
+}
+
 function isAdminEmail(email) {
   const raw = process.env.ADMIN_EMAILS || "";
   const adminEmails = raw
@@ -20,6 +24,9 @@ function isAdminEmail(email) {
 async function signup(req, res, next) {
   try {
     const { name, email, password } = req.body;
+    const emailNorm = String(email || "")
+      .toLowerCase()
+      .trim();
 
     if (!name || !email || !password) {
       const error = new Error("All fields are required");
@@ -27,7 +34,19 @@ async function signup(req, res, next) {
       throw error;
     }
 
-    const existingUser = await User.findOne({ email });
+    if (!isValidEmail(emailNorm)) {
+      const error = new Error("Please provide a valid email address");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (String(password).length < 6) {
+      const error = new Error("Password must be at least 6 characters");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const existingUser = await User.findOne({ email: emailNorm });
     if (existingUser) {
       const error = new Error("Email already in use");
       error.statusCode = 400;
@@ -35,11 +54,11 @@ async function signup(req, res, next) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const role = isAdminEmail(email) ? "admin" : "user";
+    const role = isAdminEmail(emailNorm) ? "admin" : "user";
 
     const user = await User.create({
-      name,
-      email,
+      name: String(name).trim(),
+      email: emailNorm,
       password: hashedPassword,
       role,
     });
@@ -62,7 +81,13 @@ async function signup(req, res, next) {
 async function login(req, res, next) {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    if (!email || !password) {
+      const error = new Error("Email and password are required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const user = await User.findOne({ email: String(email).toLowerCase().trim() });
 
     if (!user) {
       const error = new Error("Invalid credentials");

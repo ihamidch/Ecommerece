@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import api from '../api/client'
 import { useCart } from '../context/CartContext'
+import { getProductImage } from '../utils/productImage'
 
 const initialAddress = {
   fullName: '',
@@ -11,13 +13,20 @@ const initialAddress = {
   country: '',
 }
 
+const FIELD_LABELS = {
+  fullName: 'Full name',
+  address: 'Street address',
+  city: 'City',
+  postalCode: 'Postal code',
+  country: 'Country',
+}
+
 function CheckoutPage() {
   const navigate = useNavigate()
   const { cartItems, subtotal, clearCart } = useCart()
   const [shippingAddress, setShippingAddress] = useState(initialAddress)
   const [paymentMethod, setPaymentMethod] = useState('mock')
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
 
   const handleChange = (event) => {
     setShippingAddress((prev) => ({ ...prev, [event.target.name]: event.target.value }))
@@ -26,7 +35,7 @@ function CheckoutPage() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (cartItems.length === 0) {
-      setMessage('Your cart is empty.')
+      toast.error('Your cart is empty.')
       return
     }
 
@@ -39,7 +48,7 @@ function CheckoutPage() {
         paymentStatus = data.mode === 'mock' ? 'paid' : 'pending'
       }
 
-      await api.post('/orders', {
+      const { data: order } = await api.post('/orders', {
         cartItems,
         shippingAddress,
         paymentMethod,
@@ -47,76 +56,112 @@ function CheckoutPage() {
       })
 
       clearCart()
-      navigate('/dashboard')
+      toast.success('Order placed successfully')
+      navigate(`/order-success/${order._id}`, { state: { order } })
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Checkout failed')
+      toast.error(error.response?.data?.message || 'Checkout failed')
     } finally {
       setLoading(false)
     }
   }
 
+  if (cartItems.length === 0) {
+    return (
+      <div className="mx-auto max-w-lg rounded-3xl border border-slate-200 bg-white px-8 py-12 text-center shadow-sm">
+        <p className="text-slate-700">Your cart is empty. Add products before checkout.</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="row justify-content-center">
-      <div className="col-lg-8">
-        <h1 className="h3 mb-3">Checkout</h1>
-        {message ? <div className="alert alert-info">{message}</div> : null}
-        <form className="card shadow-sm" onSubmit={handleSubmit}>
-          <div className="card-body">
-            <h2 className="h5">Shipping Address</h2>
-            <div className="row g-3">
+    <div className="grid gap-8 lg:grid-cols-3">
+      <div className="lg:col-span-2">
+        <h1 className="text-2xl font-bold text-slate-900">Checkout</h1>
+        <form className="mt-6 space-y-8" onSubmit={handleSubmit}>
+          <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">Shipping address</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {Object.keys(initialAddress).map((field) => (
-                <div key={field} className="col-md-6">
-                  <label className="form-label text-capitalize">{field}</label>
+                <label key={field} className="block text-sm sm:col-span-1">
+                  <span className="mb-1 block font-medium text-slate-700">{FIELD_LABELS[field]}</span>
                   <input
                     required
                     name={field}
-                    className="form-control"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15"
                     value={shippingAddress[field]}
                     onChange={handleChange}
                   />
-                </div>
+                </label>
               ))}
             </div>
+          </section>
 
-            <h2 className="h5 mt-4">Payment</h2>
-            <div className="d-flex gap-3">
-              <div className="form-check">
+          <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">Payment</h2>
+            <div className="mt-4 flex flex-wrap gap-6">
+              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-800">
                 <input
-                  id="mock"
-                  className="form-check-input"
                   type="radio"
+                  className="h-4 w-4 border-slate-300 text-indigo-600"
                   checked={paymentMethod === 'mock'}
                   onChange={() => setPaymentMethod('mock')}
                 />
-                <label htmlFor="mock" className="form-check-label">
-                  Mock Payment
-                </label>
-              </div>
-              <div className="form-check">
+                Mock payment (instant)
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-800">
                 <input
-                  id="stripe"
-                  className="form-check-input"
                   type="radio"
+                  className="h-4 w-4 border-slate-300 text-indigo-600"
                   checked={paymentMethod === 'stripe'}
                   onChange={() => setPaymentMethod('stripe')}
                 />
-                <label htmlFor="stripe" className="form-check-label">
-                  Stripe
-                </label>
-              </div>
+                Stripe (when configured)
+              </label>
             </div>
+          </section>
 
-            <p className="mt-3 mb-0">
-              Total: <strong>${subtotal.toFixed(2)}</strong>
-            </p>
-          </div>
-          <div className="card-footer bg-white">
-            <button className="btn btn-primary" disabled={loading}>
-              {loading ? 'Processing...' : 'Place Order'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-700 disabled:opacity-60"
+          >
+            {loading ? 'Placing order…' : 'Place order'}
+          </button>
         </form>
       </div>
+
+      <aside className="lg:col-span-1">
+        <div className="sticky top-28 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-card">
+          <h2 className="text-lg font-semibold text-slate-900">Order summary</h2>
+          <ul className="mt-4 max-h-64 space-y-3 overflow-y-auto text-sm">
+            {cartItems.map((item, index) => (
+              <li key={item.productId} className="flex gap-3">
+                <img
+                  src={getProductImage(item, index)}
+                  alt=""
+                  className="h-12 w-12 rounded-lg object-cover"
+                  loading="lazy"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-slate-900">{item.name}</p>
+                  <p className="text-xs text-slate-500">
+                    ${Number(item.price).toFixed(2)} × {item.quantity}
+                  </p>
+                </div>
+                <p className="shrink-0 font-semibold text-slate-800">
+                  ${(Number(item.price) * item.quantity).toFixed(2)}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-6 border-t border-slate-200 pt-4">
+            <div className="flex justify-between text-base font-bold text-slate-900">
+              <span>Total</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
   )
 }

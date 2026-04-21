@@ -6,6 +6,7 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const userRoutes = require("./routes/userRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const { notFound } = require("./middleware/notFound");
 
 const app = express();
 
@@ -25,7 +26,8 @@ app.use(
   cors({
     origin(origin, callback) {
       const isVercelPreview = origin?.endsWith(".vercel.app");
-      if (!origin || allowedOrigins.includes(origin) || isVercelPreview) {
+      const isRender = origin?.endsWith(".onrender.com");
+      if (!origin || allowedOrigins.includes(origin) || isVercelPreview || isRender) {
         return callback(null, true);
       }
       return callback(new Error(`CORS blocked origin: ${origin}`));
@@ -45,11 +47,28 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
 
+app.use(notFound);
+
 app.use((err, _req, res, _next) => {
-  const statusCode = err.statusCode || 500;
-  res.status(statusCode).json({
-    message: err.message || "Server error",
-  });
+  let statusCode = err.statusCode || 500;
+  let message = err.message || "Server error";
+
+  if (err.name === "CastError") {
+    statusCode = 400;
+    message = "Invalid identifier";
+  }
+  if (err.name === "ValidationError") {
+    statusCode = 400;
+    message = Object.values(err.errors || {})
+      .map((e) => e.message)
+      .join(", ");
+  }
+
+  if (statusCode === 500 && process.env.NODE_ENV === "production") {
+    message = "Server error";
+  }
+
+  res.status(statusCode).json({ message });
 });
 
 module.exports = app;

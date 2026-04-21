@@ -2,6 +2,8 @@ const Stripe = require("stripe");
 const Product = require("../models/Product");
 const Order = require("../models/Order");
 
+const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"];
+
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : null;
@@ -47,27 +49,67 @@ async function createOrder(req, res, next) {
       throw error;
     }
 
-    const priceMap = new Map(products.map((product) => [String(product._id), product.price]));
+    const priceMap = new Map(
+      products.map((product) => [String(product._id), { price: product.price, stock: product.stock }])
+    );
     const normalizedItems = normalizeItems(cartItems).map((item) => ({
       ...item,
-      price: priceMap.get(String(item.product)) || item.price,
+      price: priceMap.get(String(item.product))?.price ?? item.price,
     }));
+
+    for (const item of normalizedItems) {
+      const meta = priceMap.get(String(item.product));
+      if (!meta) {
+        const error = new Error("Invalid product in cart");
+        error.statusCode = 400;
+        throw error;
+      }
+      if (item.quantity > meta.stock) {
+        const error = new Error(`Insufficient stock for "${item.name}" (available: ${meta.stock})`);
+        error.statusCode = 400;
+        throw error;
+      }
+    }
 
     const totalAmount = normalizedItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
 
-    const order = await Order.create({
-      user: req.user._id,
-      items: normalizedItems,
-      shippingAddress,
-      totalAmount,
-      paymentMethod,
-      paymentStatus: paymentStatus || (paymentMethod === "mock" ? "paid" : "pending"),
-    });
+    const stockDecrements = [];
+    try {
+      for (const item of normalizedItems) {
+        const updated = await Product.findOneAndUpdate(
+          { _id: item.product, stock: { $gte: item.quantity } },
+          { $inc: { stock: -item.quantity } },
+          { new: true }
+        );
+        if (!updated) {
+          const error = new Error(`Could not reserve stock for "${item.name}"`);
+          error.statusCode = 409;
+          throw error;
+        }
+        stockDecrements.push({ productId: item.product, quantity: item.quantity });
+      }
 
-    return res.status(201).json(order);
+      const order = await Order.create({
+        user: req.user._id,
+        items: normalizedItems,
+        shippingAddress,
+        totalAmount,
+        paymentMethod,
+        paymentStatus: paymentStatus || (paymentMethod === "mock" ? "paid" : "pending"),
+      });
+
+      return res.status(201).json(order);
+    } catch (orderError) {
+      await Promise.all(
+        stockDecrements.map((row) =>
+          Product.findByIdAndUpdate(row.productId, { $inc: { stock: row.quantity } })
+        )
+      );
+      throw orderError;
+    }
   } catch (error) {
     return next(error);
   }
@@ -93,6 +135,28 @@ async function getAllOrders(_req, res, next) {
   }
 }
 
+async function getOrderById(req, res, next) {
+  try {
+    const order = await Order.findById(req.params.id).populate("user", "name email");
+    if (!order) {
+      const error = new Error("Order not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const isOwner = String(order.user?._id) === String(req.user._id);
+    if (!isOwner && req.user.role !== "admin") {
+      const error = new Error("Not authorized to view this order");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    return res.json(order);
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function updateOrderStatus(req, res, next) {
   try {
     const order = await Order.findById(req.params.id);
@@ -103,6 +167,11 @@ async function updateOrderStatus(req, res, next) {
     }
 
     if (req.body.status) {
+      if (!ORDER_STATUSES.includes(req.body.status)) {
+        const error = new Error(`Invalid order status. Allowed: ${ORDER_STATUSES.join(", ")}`);
+        error.statusCode = 400;
+        throw error;
+      }
       order.status = req.body.status;
     }
 
@@ -151,6 +220,7 @@ async function createPaymentIntent(req, res, next) {
 module.exports = {
   createOrder,
   getMyOrders,
+  getOrderById,
   getAllOrders,
   updateOrderStatus,
   createPaymentIntent,

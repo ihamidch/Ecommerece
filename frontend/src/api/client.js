@@ -12,4 +12,18 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      const path = window.location.pathname
+      if (!path.startsWith('/auth')) {
+        localStorage.removeItem('token')
+        window.dispatchEvent(new CustomEvent('ecommerce:unauthorized'))
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 export default api

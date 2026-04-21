@@ -8,6 +8,12 @@ export function CartProvider({ children }) {
     const stored = localStorage.getItem('cart')
     return stored ? JSON.parse(stored) : []
   })
+  const [isCartReady, setIsCartReady] = useState(false)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration flag for cart skeleton state
+    setIsCartReady(true)
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems))
@@ -64,6 +70,7 @@ export function CartProvider({ children }) {
 
   const value = {
     cartItems,
+    isCartReady,
     ...totals,
     addToCart,
     updateQuantity,

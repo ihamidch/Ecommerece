@@ -14,6 +14,14 @@ async function uploadImage(req, res, next) {
       return res.status(201).json({ url: req.file.path });
     }
 
+    if (req.file?.buffer && process.env.CLOUDINARY_CLOUD_NAME) {
+      const dataUri = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+      const result = await cloudinary.uploader.upload(dataUri, {
+        folder: "mern-ecommerce",
+      });
+      return res.status(201).json({ url: result.secure_url });
+    }
+
     const { imageBase64 } = req.body;
     if (!imageBase64) {
       const error = new Error("Image file or base64 payload is required");

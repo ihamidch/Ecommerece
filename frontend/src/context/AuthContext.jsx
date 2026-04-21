@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import api from '../api/client'
 
 const AuthContext = createContext(null)
@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token') || '')
   const [loading, setLoading] = useState(true)
 
-  const setSession = (nextToken, nextUser) => {
+  const setSession = useCallback((nextToken, nextUser) => {
     setToken(nextToken)
     setUser(nextUser)
     if (nextToken) {
@@ -17,7 +17,15 @@ export function AuthProvider({ children }) {
     } else {
       localStorage.removeItem('token')
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    const onUnauthorized = () => {
+      setSession('', null)
+    }
+    window.addEventListener('ecommerce:unauthorized', onUnauthorized)
+    return () => window.removeEventListener('ecommerce:unauthorized', onUnauthorized)
+  }, [setSession])
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -37,7 +45,7 @@ export function AuthProvider({ children }) {
     }
 
     bootstrap()
-  }, [token])
+  }, [token, setSession])
 
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password })

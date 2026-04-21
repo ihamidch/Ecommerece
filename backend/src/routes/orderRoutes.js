@@ -2,6 +2,7 @@ const express = require("express");
 const {
   createOrder,
   getMyOrders,
+  getOrderById,
   getAllOrders,
   updateOrderStatus,
   createPaymentIntent,
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.post("/", protect, createOrder);
 router.get("/my-orders", protect, getMyOrders);
+router.get("/:id", protect, getOrderById);
 router.post("/payment-intent", protect, createPaymentIntent);
 router.get("/", protect, adminOnly, getAllOrders);
 router.patch("/:id/status", protect, adminOnly, updateOrderStatus);
