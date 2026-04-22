@@ -57,6 +57,22 @@ It includes secure JWT authentication, role-based admin controls, full cart-to-c
 
 ---
 
+## Screenshots
+
+### Home
+![Home](docs/screenshots/home.png)
+
+### Authentication
+![Authentication](docs/screenshots/auth.png)
+
+### Cart
+![Cart](docs/screenshots/cart.png)
+
+### Checkout
+![Checkout](docs/screenshots/checkout.png)
+
+---
+
 ## Tech Stack
 
 - Frontend: React, Vite, React Router, Axios, Tailwind CSS
