@@ -56,6 +56,18 @@ app.use(
 );
 app.use(express.json({ limit: "10mb" }));
 
+app.get("/", (_req, res) => {
+  res.json({
+    service: "backend-api",
+    status: "ok",
+    health: "/api/health",
+  });
+});
+
+app.get(["/favicon.ico", "/favicon.png"], (_req, res) => {
+  res.status(204).end();
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
