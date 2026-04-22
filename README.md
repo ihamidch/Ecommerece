@@ -1,134 +1,211 @@
-# Ecommerece (MERN)
+# MERN E-commerce SaaS Platform
 
-Full-stack e-commerce platform built with MERN where users can browse products, manage cart items, place orders, and track purchases, while admins manage products and order lifecycle.
+Production-ready full-stack e-commerce application built with the MERN stack.  
+It includes secure JWT authentication, role-based admin controls, full cart-to-checkout flow, and a modern responsive SaaS UI.
 
-## Live Demo
+## Live Links
 
-- App (Frontend): https://ecommerece-mern-web.vercel.app
-- API (Backend): https://backend-two-weld-46.vercel.app
+- Frontend: https://ecommerece-mern-web.vercel.app
+- Backend API: https://backend-two-weld-46.vercel.app
+- Health Check: https://backend-two-weld-46.vercel.app/api/health
 - Repository: https://github.com/ihamidch/Ecommerece
 
-These are **dedicated Vercel projects** for this e-commerce app. Older URLs that pointed at generic `frontend` / `backend` projects may have shown a different repo (for example Freelancer Marketplace) because the same deployment names were reused.
+---
 
 ## Features
 
-- JWT authentication (signup/login/me)
-- Role-based access (`user`, `admin`)
-- Product catalog with search and price/category filters
-- Product details and cart management
-- Checkout flow (mock payment + Stripe-ready endpoint)
-- User dashboard with order history
-- Admin dashboard for:
-  - Add/edit/delete products
-  - View and update order status
-- Cloudinary-ready upload endpoint
+### Authentication & Security
+- User signup/login with bcrypt password hashing
+- JWT authentication with protected backend routes
+- Role-based access control (`user`, `admin`)
+- Frontend route guards for authenticated and admin-only pages
+
+### E-commerce Core
+- Product catalog with search, category, and price range filters
+- Product detail view with stock-aware cart actions
+- Cart add/remove/update quantity with localStorage persistence
+- Checkout flow with shipping info and order summary
+- Order success page with order ID and summary
+- User order history dashboard
+
+### Admin Dashboard
+- SaaS-style admin panel with sidebar navigation
+- Product management (create/update/delete)
+- Order management (view all, update status)
+- User management and role updates
+- Image upload endpoint (Cloudinary-ready)
+
+### UX & Performance
+- Responsive design (mobile/tablet/desktop)
+- Loading skeletons and page loaders
+- Toast notifications for key actions
+- Lazy-loaded routes and polished UI transitions
+
+---
+
+## UI Preview
+
+- Storefront: https://ecommerece-mern-web.vercel.app
+- Auth: https://ecommerece-mern-web.vercel.app/auth
+- Cart: https://ecommerece-mern-web.vercel.app/cart
+- Admin (requires admin account): https://ecommerece-mern-web.vercel.app/admin/products
+
+---
 
 ## Tech Stack
 
-- Frontend: React, Vite, React Router, Axios, Bootstrap
-- Backend: Node.js, Express, Mongoose, JWT, Multer, Cloudinary, Stripe
+- Frontend: React, Vite, React Router, Axios, Tailwind CSS
+- Backend: Node.js, Express, Mongoose, JWT, bcryptjs, Multer, Cloudinary, Stripe
 - Database: MongoDB Atlas
 - Deployment: Vercel (frontend + backend)
 
-## Repository Layout
+---
+
+## Project Structure
 
 ```text
 Ecommerece/
-├── frontend/          # React + Vite client
-├── backend/           # Express + MongoDB API
-├── DEPLOYMENT.md      # Deployment steps (Vercel + Atlas)
+├── frontend/                 # React + Vite app
+│   ├── src/api/              # Axios client
+│   ├── src/components/       # Reusable UI + layout
+│   ├── src/context/          # Auth/Cart providers
+│   ├── src/pages/            # Public/user/admin pages
+│   └── src/utils/            # Helpers
+├── backend/
+│   └── src/
+│       ├── controllers/      # Route handlers
+│       ├── middleware/       # auth, notFound, etc.
+│       ├── models/           # User/Product/Order schemas
+│       ├── routes/           # API route wiring
+│       ├── services/         # seed/utility services
+│       ├── app.js            # Express app config
+│       └── server.js         # DB + runtime bootstrap
+├── DEPLOYMENT.md
 └── README.md
 ```
 
-## API Overview
+---
 
-Base path: `/api`
+## REST API Overview
 
-- Auth
-  - `POST /auth/signup`
-  - `POST /auth/login`
-  - `GET /auth/me`
-- Products
-  - `GET /products`
-  - `GET /products/:id`
-  - `POST /products` (admin)
-  - `PUT /products/:id` (admin)
-  - `DELETE /products/:id` (admin)
-- Orders
-  - `POST /orders`
-  - `GET /orders/my-orders`
-  - `GET /orders` (admin)
-  - `PATCH /orders/:id/status` (admin)
-  - `POST /orders/payment-intent`
-- Users
-  - `GET /users` (admin)
-- Upload
-  - `POST /upload` (admin)
+Base URL: `/api`
+
+### Auth
+- `POST /auth/signup`
+- `POST /auth/login`
+- `GET /auth/me` (protected)
+
+### Products
+- `GET /products`
+- `GET /products/categories`
+- `GET /products/:id`
+- `POST /products` (admin)
+- `PUT /products/:id` (admin)
+- `DELETE /products/:id` (admin)
+
+### Orders
+- `POST /orders` (protected)
+- `GET /orders/user` (protected)
+- `GET /orders/my-orders` (protected, backward-compatible)
+- `GET /orders/:id` (owner/admin)
+- `GET /orders` (admin)
+- `PUT /orders/:id/status` (admin)
+- `PATCH /orders/:id/status` (admin, backward-compatible)
+- `POST /orders/payment-intent` (protected)
+
+### Users (Admin)
+- `GET /users`
+- `PATCH /users/:id/role`
+
+### Upload (Admin)
+- `POST /upload`
+
+---
 
 ## Environment Variables
 
-### Backend (`backend/.env`)
+Use `.env.example` files as source of truth.
 
+### Backend (`backend/.env`)
 ```env
 PORT=5000
-MONGO_URI=<mongodb atlas uri>
-JWT_SECRET=<strong random secret>
-CLIENT_URL=http://localhost:5173
+MONGO_URI=<mongodb-atlas-uri>
+JWT_SECRET=<strong-random-secret>
+CLIENT_URL=<frontend-production-url>
+CLIENT_URLS=<optional-comma-separated-origins>
+ALLOW_PREVIEW_ORIGINS=true
 ADMIN_EMAILS=admin@example.com
-CLOUDINARY_CLOUD_NAME=<optional>
-CLOUDINARY_API_KEY=<optional>
-CLOUDINARY_API_SECRET=<optional>
-STRIPE_SECRET_KEY=<optional>
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+STRIPE_SECRET_KEY=
 ```
 
 ### Frontend (`frontend/.env`)
-
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=<backend-url>/api
 ```
 
-## Local Development
+---
 
-Install and run:
+## Local Setup
 
+### 1) Install dependencies
 ```bash
 cd backend && npm install
 cd ../frontend && npm install
 ```
 
-Run backend:
-
+### 2) Start backend
 ```bash
 cd backend
 npm run dev
 ```
 
-Run frontend:
-
+### 3) Start frontend
 ```bash
 cd frontend
 npm run dev
 ```
 
-Useful backend scripts:
+Frontend: `http://localhost:5173`  
+Backend: `http://localhost:5000`
 
-- `npm run seed:demo` (seed showcase catalog)
-- `npm run cleanup:test-products` (remove placeholder test products)
-- `npm run test:e2e` (API flow test for auth/products/orders/admin)
+---
 
-## Deployment
+## Scripts
 
-Quick deploy summary:
+### Backend
+- `npm run dev` - run API in watch mode
+- `npm run start` - production start
+- `npm run seed:demo` - seed demo products
+- `npm run cleanup:test-products` - remove test products
+- `npm run test:e2e` - API e2e smoke script
 
-1. Deploy `backend` on Vercel (root directory: `backend`)
-2. Add backend envs (`MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, etc.)
-3. Deploy `frontend` on Vercel (root directory: `frontend`)
-4. Add `VITE_API_URL=<backend-url>/api`
-5. Redeploy frontend
+### Frontend
+- `npm run dev`
+- `npm run lint`
+- `npm run build`
+- `npm run preview`
 
-Detailed steps are in `DEPLOYMENT.md`.
+---
 
-## Notes
+## Deployment Notes
 
-- Stripe is optional. If not configured, checkout still works with mock payment mode.
-- Cloudinary is optional. If not configured, direct URL image input still works.
+- Configure backend env vars in Vercel project settings.
+- Configure frontend `VITE_API_URL` to your backend `/api` URL.
+- Redeploy frontend after changing backend URL/env.
+- For custom preview-domain behavior, adjust backend `ALLOW_PREVIEW_ORIGINS`.
+
+Detailed deployment steps: see `DEPLOYMENT.md`.
+
+---
+
+## Portfolio Summary
+
+This project demonstrates production-level MERN engineering:
+- secure authentication and authorization
+- full e-commerce workflow
+- admin operations
+- modern scalable frontend architecture
+- deployment-ready backend/API practices
