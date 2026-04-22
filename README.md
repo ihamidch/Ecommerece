@@ -16,6 +16,7 @@ It includes secure JWT authentication, role-based admin controls, full cart-to-c
 
 ### Authentication & Security
 - User signup/login with bcrypt password hashing
+- Protected logout endpoint for authenticated sessions
 - JWT authentication with protected backend routes
 - Role-based access control (`user`, `admin`)
 - Frontend route guards for authenticated and admin-only pages
@@ -24,6 +25,7 @@ It includes secure JWT authentication, role-based admin controls, full cart-to-c
 - Product catalog with search, category, and price range filters
 - Product detail view with stock-aware cart actions
 - Cart add/remove/update quantity with localStorage persistence
+- Logged-in cart sync with backend (`/users/me/cart`) for cross-session continuity
 - Checkout flow with shipping info and order summary
 - Order success page with order ID and summary
 - User order history dashboard
@@ -93,6 +95,7 @@ Base URL: `/api`
 ### Auth
 - `POST /auth/signup`
 - `POST /auth/login`
+- `POST /auth/logout` (protected)
 - `GET /auth/me` (protected)
 
 ### Products
@@ -105,6 +108,7 @@ Base URL: `/api`
 
 ### Orders
 - `POST /orders` (protected)
+- `GET /orders/my` (protected)
 - `GET /orders/user` (protected)
 - `GET /orders/my-orders` (protected, backward-compatible)
 - `GET /orders/:id` (owner/admin)
@@ -114,6 +118,8 @@ Base URL: `/api`
 - `POST /orders/payment-intent` (protected)
 
 ### Users (Admin)
+- `GET /users/me/cart` (protected)
+- `PUT /users/me/cart` (protected)
 - `GET /users`
 - `PATCH /users/:id/role`
 

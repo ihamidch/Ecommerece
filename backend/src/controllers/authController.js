@@ -121,4 +121,8 @@ async function getProfile(req, res) {
   return res.json({ user: req.user });
 }
 
-module.exports = { signup, login, getProfile };
+async function logout(_req, res) {
+  return res.json({ message: "Logged out successfully" });
+}
+
+module.exports = { signup, login, getProfile, logout };

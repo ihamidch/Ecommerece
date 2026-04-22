@@ -60,6 +60,9 @@ export function AuthProvider({ children }) {
   }
 
   const logout = () => {
+    if (token) {
+      api.post('/auth/logout').catch(() => {})
+    }
     setSession('', null)
   }
 

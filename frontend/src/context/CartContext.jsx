@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import api from '../api/client'
 
 const CartContext = createContext(null)
 
@@ -9,6 +10,8 @@ export function CartProvider({ children }) {
     return stored ? JSON.parse(stored) : []
   })
   const [isCartReady, setIsCartReady] = useState(false)
+  const [isSyncingCart, setIsSyncingCart] = useState(false)
+  const didHydrateFromServer = useRef(false)
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration flag for cart skeleton state
@@ -17,6 +20,46 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems))
+  }, [cartItems])
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      didHydrateFromServer.current = true
+      return
+    }
+
+    let ignore = false
+    const hydrateCart = async () => {
+      try {
+        setIsSyncingCart(true)
+        const { data } = await api.get('/users/me/cart')
+        if (!ignore && Array.isArray(data?.items)) {
+          setCartItems(data.items)
+        }
+      } catch {
+        // If cart sync fails, keep local cart as fallback.
+      } finally {
+        didHydrateFromServer.current = true
+        if (!ignore) setIsSyncingCart(false)
+      }
+    }
+
+    hydrateCart()
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token || !didHydrateFromServer.current) return
+
+    const timeoutId = setTimeout(() => {
+      api.put('/users/me/cart', { items: cartItems }).catch(() => {})
+    }, 250)
+
+    return () => clearTimeout(timeoutId)
   }, [cartItems])
 
   const addToCart = (product, quantity = 1) => {
@@ -71,6 +114,7 @@ export function CartProvider({ children }) {
   const value = {
     cartItems,
     isCartReady,
+    isSyncingCart,
     ...totals,
     addToCart,
     updateQuantity,
