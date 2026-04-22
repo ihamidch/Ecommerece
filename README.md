@@ -16,6 +16,9 @@ It includes secure JWT authentication, role-based admin controls, full cart-to-c
 
 ### Authentication & Security
 - User signup/login with bcrypt password hashing
+- Zod request validation on auth payloads (`/auth/signup`, `/auth/login`)
+- Rate limiting on authentication endpoints to reduce brute-force attempts
+- Helmet security headers enabled for API hardening
 - Protected logout endpoint for authenticated sessions
 - JWT authentication with protected backend routes
 - Role-based access control (`user`, `admin`)
@@ -140,6 +143,8 @@ JWT_SECRET=<strong-random-secret>
 CLIENT_URL=<frontend-production-url>
 CLIENT_URLS=<optional-comma-separated-origins>
 ALLOW_PREVIEW_ORIGINS=true
+AUTH_RATE_LIMIT_WINDOW_MS=600000
+AUTH_RATE_LIMIT_MAX=25
 ADMIN_EMAILS=admin@example.com
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
@@ -193,6 +198,9 @@ Backend: `http://localhost:5000`
 - `npm run lint`
 - `npm run build`
 - `npm run preview`
+
+### CI
+- GitHub Actions workflow runs frontend lint/build and backend boot checks on pushes/PRs
 
 ---
 

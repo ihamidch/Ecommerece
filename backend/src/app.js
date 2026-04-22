@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
@@ -10,6 +11,7 @@ const { notFound } = require("./middleware/notFound");
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
+app.set("trust proxy", 1);
 
 const configuredOrigins = [
   process.env.CLIENT_URL,
@@ -52,6 +54,11 @@ app.use(
       return callback(new Error(`CORS blocked origin: ${origin}`));
     },
     credentials: true,
+  })
+);
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
   })
 );
 app.use(express.json({ limit: "10mb" }));
