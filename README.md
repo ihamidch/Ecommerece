@@ -203,6 +203,8 @@ All routes are under **`/api`** (example: `POST https://<host>/api/auth/login`).
 | `PUT` / `PATCH` | `/api/orders/:id/status` 🔒👑 |
 | `POST` | `/api/orders/payment-intent` 🔒 |
 | `POST` | `/api/orders/checkout-session` 🔒 |
+| `POST` | `/api/orders/stripe/complete` 🔒 |
+| `GET` | `/api/orders/stripe/config` |
 
 ### Users, wishlist, analytics, upload
 

@@ -8,6 +8,7 @@ const HomePage = lazy(() => import('./pages/HomePage'))
 const ProductDetailsPage = lazy(() => import('./pages/ProductDetailsPage'))
 const CartPage = lazy(() => import('./pages/CartPage'))
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
+const StripeCheckoutReturnPage = lazy(() => import('./pages/StripeCheckoutReturnPage'))
 const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'))
 const LoginSignupPage = lazy(() => import('./pages/LoginSignupPage'))
 const UserDashboardPage = lazy(() => import('./pages/UserDashboardPage'))
@@ -29,6 +30,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkout/return"
+              element={
+                <ProtectedRoute>
+                  <StripeCheckoutReturnPage />
                 </ProtectedRoute>
               }
             />
