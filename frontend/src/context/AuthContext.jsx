@@ -7,21 +7,28 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(localStorage.getItem('token') || '')
+  const [refreshToken, setRefreshToken] = useState(localStorage.getItem('refreshToken') || '')
   const [loading, setLoading] = useState(true)
 
-  const setSession = useCallback((nextToken, nextUser) => {
+  const setSession = useCallback((nextToken, nextRefreshToken, nextUser) => {
     setToken(nextToken)
+    setRefreshToken(nextRefreshToken || '')
     setUser(nextUser)
     if (nextToken) {
       localStorage.setItem('token', nextToken)
     } else {
       localStorage.removeItem('token')
     }
+    if (nextRefreshToken) {
+      localStorage.setItem('refreshToken', nextRefreshToken)
+    } else {
+      localStorage.removeItem('refreshToken')
+    }
   }, [])
 
   useEffect(() => {
     const onUnauthorized = () => {
-      setSession('', null)
+      setSession('', '', null)
     }
     window.addEventListener('ecommerce:unauthorized', onUnauthorized)
     return () => window.removeEventListener('ecommerce:unauthorized', onUnauthorized)
@@ -38,24 +45,24 @@ export function AuthProvider({ children }) {
         const { data } = await api.get('/auth/me')
         setUser(data.user)
       } catch {
-        setSession('', null)
+        setSession('', '', null)
       } finally {
         setLoading(false)
       }
     }
 
     bootstrap()
-  }, [token, setSession])
+  }, [token, refreshToken, setSession])
 
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password })
-    setSession(data.token, data.user)
+    setSession(data.token, data.refreshToken, data.user)
     return data.user
   }
 
   const signup = async (payload) => {
     const { data } = await api.post('/auth/signup', payload)
-    setSession(data.token, data.user)
+    setSession(data.token, data.refreshToken, data.user)
     return data.user
   }
 
@@ -63,7 +70,7 @@ export function AuthProvider({ children }) {
     if (token) {
       api.post('/auth/logout').catch(() => {})
     }
-    setSession('', null)
+    setSession('', '', null)
   }
 
   const value = {

@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Order = require("../models/Order");
 
 async function getUsers(_req, res, next) {
   try {
@@ -87,4 +88,68 @@ async function updateMyCart(req, res, next) {
   }
 }
 
-module.exports = { getUsers, updateUserRole, getMyCart, updateMyCart };
+async function getMyWishlist(req, res, next) {
+  try {
+    const user = await User.findById(req.user._id).populate(
+      "wishlist",
+      "name price image category stock rating numReviews"
+    );
+    return res.json({ items: user?.wishlist || [] });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function toggleWishlistItem(req, res, next) {
+  try {
+    const productId = req.params.productId;
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const exists = user.wishlist.some((item) => String(item) === String(productId));
+    if (exists) {
+      user.wishlist = user.wishlist.filter((item) => String(item) !== String(productId));
+    } else {
+      user.wishlist.push(productId);
+    }
+    await user.save();
+    return res.json({ items: user.wishlist, action: exists ? "removed" : "added" });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function getAdminAnalytics(_req, res, next) {
+  try {
+    const [totalUsers, totalOrders, revenueResult] = await Promise.all([
+      User.countDocuments(),
+      Order.countDocuments(),
+      Order.aggregate([
+        { $match: { paymentStatus: "paid" } },
+        { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
+      ]),
+    ]);
+
+    return res.json({
+      totalUsers,
+      totalOrders,
+      totalRevenue: Number(revenueResult[0]?.totalRevenue || 0),
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+module.exports = {
+  getUsers,
+  updateUserRole,
+  getMyCart,
+  updateMyCart,
+  getMyWishlist,
+  toggleWishlistItem,
+  getAdminAnalytics,
+};

@@ -3,16 +3,21 @@ import { Link, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import api from '../api/client'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
 import { getProductImage } from '../utils/productImage'
 import { Skeleton } from '../components/ui/Skeleton'
 
 function ProductDetailsPage() {
   const { id } = useParams()
   const { addToCart } = useCart()
+  const { isAuthenticated } = useAuth()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
   const [error, setError] = useState('')
+  const [reviewRating, setReviewRating] = useState('5')
+  const [reviewComment, setReviewComment] = useState('')
+  const [submittingReview, setSubmittingReview] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -66,8 +71,33 @@ function ProductDetailsPage() {
 
   const maxQty = Math.max(1, product.stock || 1)
 
+  const submitReview = async (event) => {
+    event.preventDefault()
+    if (!isAuthenticated) {
+      toast.error('Please login to submit a review')
+      return
+    }
+    try {
+      setSubmittingReview(true)
+      await api.post(`/products/${id}/reviews`, {
+        rating: Number(reviewRating),
+        comment: reviewComment,
+      })
+      const { data } = await api.get(`/products/${id}`)
+      setProduct(data)
+      setReviewComment('')
+      setReviewRating('5')
+      toast.success('Review submitted')
+    } catch (reviewError) {
+      toast.error(reviewError.response?.data?.message || 'Unable to submit review')
+    } finally {
+      setSubmittingReview(false)
+    }
+  }
+
   return (
-    <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+    <div className="space-y-8">
+      <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
       <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-card">
         <img
           className="aspect-square w-full object-cover lg:aspect-auto lg:max-h-[520px]"
@@ -93,6 +123,9 @@ function ProductDetailsPage() {
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{product.name}</h1>
         <p className="mt-6 whitespace-pre-line text-slate-600 leading-relaxed">{product.description}</p>
         <p className="mt-8 text-4xl font-bold text-indigo-700">${Number(product.price).toFixed(2)}</p>
+        <p className="mt-2 text-sm font-medium text-amber-600">
+          ★ {Number(product.rating || 0).toFixed(1)} ({Number(product.numReviews || 0)} reviews)
+        </p>
         <p className="mt-2 text-sm text-slate-600">
           <span className="font-semibold text-slate-800">{product.stock}</span> in stock
         </p>
@@ -147,6 +180,70 @@ function ProductDetailsPage() {
           </Link>
         </div>
       </div>
+      </div>
+
+      <section className="grid gap-6 lg:grid-cols-2">
+        <div className="surface-card p-5 sm:p-6">
+          <h2 className="text-lg font-semibold text-slate-900">Customer reviews</h2>
+          {Array.isArray(product.reviews) && product.reviews.length > 0 ? (
+            <div className="mt-4 space-y-4">
+              {product.reviews
+                .slice()
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .map((review) => (
+                  <article key={`${review.user}-${review.createdAt}`} className="rounded-xl border border-slate-200 p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-slate-800">{review.name}</p>
+                      <p className="text-sm font-medium text-amber-600">★ {Number(review.rating).toFixed(1)}</p>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-600">{review.comment}</p>
+                  </article>
+                ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-slate-500">No reviews yet. Be the first to review this product.</p>
+          )}
+        </div>
+
+        <div className="surface-card p-5 sm:p-6">
+          <h2 className="text-lg font-semibold text-slate-900">Write a review</h2>
+          <p className="mt-1 text-sm text-slate-500">You can update your review anytime.</p>
+          <form className="mt-4 space-y-3" onSubmit={submitReview}>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium text-slate-700">Rating</span>
+              <select
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15"
+                value={reviewRating}
+                onChange={(event) => setReviewRating(event.target.value)}
+              >
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Very good</option>
+                <option value="3">3 - Good</option>
+                <option value="2">2 - Fair</option>
+                <option value="1">1 - Poor</option>
+              </select>
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block font-medium text-slate-700">Comment</span>
+              <textarea
+                required
+                rows={4}
+                value={reviewComment}
+                onChange={(event) => setReviewComment(event.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15"
+                placeholder="Share your experience with this product"
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={submittingReview}
+              className="btn-primary px-6 py-2.5 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submittingReview ? 'Submitting...' : 'Submit review'}
+            </button>
+          </form>
+        </div>
+      </section>
     </div>
   )
 }

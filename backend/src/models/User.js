@@ -23,6 +23,20 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    refreshToken: {
+      type: String,
+      default: "",
+      select: false,
+    },
+    wishlist: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+        },
+      ],
+      default: [],
+    },
     cart: {
       type: [
         {

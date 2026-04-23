@@ -6,6 +6,7 @@ const {
   getAllOrders,
   updateOrderStatus,
   createPaymentIntent,
+  createCheckoutSession,
 } = require("../controllers/orderController");
 const { protect, adminOnly } = require("../middleware/authMiddleware");
 
@@ -17,6 +18,7 @@ router.get("/my-orders", protect, getMyOrders);
 router.get("/user", protect, getMyOrders);
 router.get("/:id", protect, getOrderById);
 router.post("/payment-intent", protect, createPaymentIntent);
+router.post("/checkout-session", protect, createCheckoutSession);
 router.get("/", protect, adminOnly, getAllOrders);
 router.put("/:id/status", protect, adminOnly, updateOrderStatus);
 router.patch("/:id/status", protect, adminOnly, updateOrderStatus);

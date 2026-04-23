@@ -8,6 +8,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const userRoutes = require("./routes/userRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const { notFound } = require("./middleware/notFound");
+const { requestLogger } = require("./middleware/requestLogger");
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
@@ -61,6 +62,7 @@ app.use(
     crossOriginResourcePolicy: false,
   })
 );
+app.use(requestLogger);
 app.use(express.json({ limit: "10mb" }));
 
 app.get("/", (_req, res) => {

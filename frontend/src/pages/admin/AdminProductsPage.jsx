@@ -16,6 +16,7 @@ const initialProduct = {
 
 function AdminProductsPage() {
   const [products, setProducts] = useState([])
+  const [analytics, setAnalytics] = useState({ totalUsers: 0, totalOrders: 0, totalRevenue: 0 })
   const [form, setForm] = useState(initialProduct)
   const [editingId, setEditingId] = useState('')
   const [loading, setLoading] = useState(true)
@@ -27,8 +28,16 @@ function AdminProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const { data } = await api.get('/products')
-      setProducts(data)
+      const [{ data: productData }, { data: analyticsData }] = await Promise.all([
+        api.get('/products'),
+        api.get('/users/admin/analytics').catch(() => ({ data: { totalUsers: 0, totalOrders: 0, totalRevenue: 0 } })),
+      ])
+      setProducts(Array.isArray(productData) ? productData : [])
+      setAnalytics({
+        totalUsers: Number(analyticsData?.totalUsers || 0),
+        totalOrders: Number(analyticsData?.totalOrders || 0),
+        totalRevenue: Number(analyticsData?.totalRevenue || 0),
+      })
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to load products')
     } finally {
@@ -118,6 +127,9 @@ function AdminProductsPage() {
         <StatCard label="Products" value={products.length} />
         <StatCard label="Units in stock" value={totalInventory} tone="emerald" />
         <StatCard label="Low stock alerts" value={lowStockCount} tone="amber" />
+        <StatCard label="Total users" value={analytics.totalUsers} />
+        <StatCard label="Total orders" value={analytics.totalOrders} tone="indigo" />
+        <StatCard label="Revenue" value={`$${analytics.totalRevenue.toFixed(2)}`} tone="emerald" />
       </section>
 
       <section className="surface-card animate-enter p-5 sm:p-6">

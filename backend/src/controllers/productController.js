@@ -1,6 +1,12 @@
 const Product = require("../models/Product");
 const { ensureDemoCatalog } = require("../services/ensureDemoCatalog");
 
+function parsePositiveInt(value, fallback) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return parsed;
+}
+
 async function getProductCategories(req, res, next) {
   try {
     await ensureDemoCatalog();
@@ -16,16 +22,11 @@ async function getProducts(req, res, next) {
   try {
     await ensureDemoCatalog();
 
-    const { search, category, minPrice, maxPrice } = req.query;
+    const { search, category, minPrice, maxPrice, minRating, sort } = req.query;
     const filter = {};
 
-    if (search) {
-      filter.name = { $regex: search, $options: "i" };
-    }
-
-    if (category) {
-      filter.category = category;
-    }
+    if (search) filter.name = { $regex: search, $options: "i" };
+    if (category) filter.category = category;
 
     if (minPrice || maxPrice) {
       filter.price = {};
@@ -33,8 +34,40 @@ async function getProducts(req, res, next) {
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
 
-    const products = await Product.find(filter).sort({ createdAt: -1 });
-    return res.json(products);
+    if (minRating) filter.rating = { $gte: Number(minRating) };
+
+    const sortMap = {
+      newest: { createdAt: -1 },
+      priceAsc: { price: 1 },
+      priceDesc: { price: -1 },
+      topRated: { rating: -1, numReviews: -1, createdAt: -1 },
+    };
+    const sortBy = sortMap[sort] || sortMap.newest;
+
+    const hasPaginationQuery = req.query.page !== undefined || req.query.limit !== undefined;
+    if (!hasPaginationQuery) {
+      const products = await Product.find(filter).sort(sortBy);
+      return res.json(products);
+    }
+
+    const page = parsePositiveInt(req.query.page, 1);
+    const limit = parsePositiveInt(req.query.limit, 9);
+    const skip = (page - 1) * limit;
+
+    const [items, totalItems] = await Promise.all([
+      Product.find(filter).sort(sortBy).skip(skip).limit(limit),
+      Product.countDocuments(filter),
+    ]);
+
+    return res.json({
+      items,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages: Math.max(1, Math.ceil(totalItems / limit)),
+      },
+    });
   } catch (error) {
     return next(error);
   }
@@ -49,6 +82,61 @@ async function getProductById(req, res, next) {
       throw error;
     }
     return res.json(product);
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function addProductReview(req, res, next) {
+  try {
+    const { rating, comment } = req.body;
+    const parsedRating = Number(rating);
+
+    if (!Number.isFinite(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+      const error = new Error("rating must be a number between 1 and 5");
+      error.statusCode = 400;
+      throw error;
+    }
+    if (!comment || !String(comment).trim()) {
+      const error = new Error("comment is required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      const error = new Error("Product not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const existingReview = product.reviews.find(
+      (item) => String(item.user) === String(req.user._id)
+    );
+    if (existingReview) {
+      existingReview.rating = parsedRating;
+      existingReview.comment = String(comment).trim();
+      existingReview.createdAt = new Date();
+    } else {
+      product.reviews.push({
+        user: req.user._id,
+        name: req.user.name,
+        rating: parsedRating,
+        comment: String(comment).trim(),
+      });
+    }
+
+    product.numReviews = product.reviews.length;
+    const totalRating = product.reviews.reduce((sum, item) => sum + Number(item.rating || 0), 0);
+    product.rating = product.numReviews ? Number((totalRating / product.numReviews).toFixed(2)) : 0;
+
+    await product.save();
+    return res.status(201).json({
+      message: existingReview ? "Review updated" : "Review added",
+      rating: product.rating,
+      numReviews: product.numReviews,
+      reviews: product.reviews,
+    });
   } catch (error) {
     return next(error);
   }
@@ -158,6 +246,7 @@ module.exports = {
   getProductCategories,
   getProducts,
   getProductById,
+  addProductReview,
   createProduct,
   updateProduct,
   deleteProduct,

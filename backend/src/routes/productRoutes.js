@@ -3,6 +3,7 @@ const {
   getProductCategories,
   getProducts,
   getProductById,
+  addProductReview,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -14,6 +15,7 @@ const router = express.Router();
 router.get("/categories", getProductCategories);
 router.get("/", getProducts);
 router.get("/:id", getProductById);
+router.post("/:id/reviews", protect, addProductReview);
 router.post("/", protect, adminOnly, createProduct);
 router.put("/:id", protect, adminOnly, updateProduct);
 router.delete("/:id", protect, adminOnly, deleteProduct);

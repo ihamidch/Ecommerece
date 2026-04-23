@@ -1,8 +1,14 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Express REST API for the MERN e-commerce platform (auth, products, orders, uploads).",
   "main": "src/server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ihamidch/Ecommerece.git",
+    "directory": "backend"
+  },
+  "license": "MIT",
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
@@ -10,9 +16,13 @@
     "seed:demo": "node scripts/seed-demo.js",
     "test:e2e": "node scripts/e2e-test.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "express",
+    "mongodb",
+    "ecommerce",
+    "api"
+  ],
+  "author": "Hamid Rafique",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",

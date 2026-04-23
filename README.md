@@ -1,241 +1,261 @@
 # MERN E-commerce SaaS Platform
 
-Production-ready full-stack e-commerce application built with the MERN stack.  
-It includes secure JWT authentication, role-based admin controls, full cart-to-checkout flow, and a modern responsive SaaS UI.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com/)
 
-## Live Links
-
-- Frontend: https://ecommerece-mern-web.vercel.app
-- Backend API: https://backend-two-weld-46.vercel.app
-- Health Check: https://backend-two-weld-46.vercel.app/api/health
-- Repository: https://github.com/ihamidch/Ecommerece
+Full-stack **MERN** e-commerce application with **JWT authentication**, **role-based admin tools**, **cart → checkout → orders**, **reviews & ratings**, and a **modern Tailwind UI**. The API is structured for clarity (controllers, routes, models, middleware) and is intended to read as **job-ready** and **deployable**.
 
 ---
 
-## Features
+## Live demo
 
-### Authentication & Security
-- User signup/login with bcrypt password hashing
-- Zod request validation on auth payloads (`/auth/signup`, `/auth/login`)
-- Rate limiting on authentication endpoints to reduce brute-force attempts
-- Helmet security headers enabled for API hardening
-- Protected logout endpoint for authenticated sessions
-- JWT authentication with protected backend routes
-- Role-based access control (`user`, `admin`)
-- Frontend route guards for authenticated and admin-only pages
-
-### E-commerce Core
-- Product catalog with search, category, and price range filters
-- Product detail view with stock-aware cart actions
-- Cart add/remove/update quantity with localStorage persistence
-- Logged-in cart sync with backend (`/users/me/cart`) for cross-session continuity
-- Checkout flow with shipping info and order summary
-- Order success page with order ID and summary
-- User order history dashboard
-
-### Admin Dashboard
-- SaaS-style admin panel with sidebar navigation
-- Product management (create/update/delete)
-- Order management (view all, update status)
-- User management and role updates
-- Image upload endpoint (Cloudinary-ready)
-
-### UX & Performance
-- Responsive design (mobile/tablet/desktop)
-- Loading skeletons and page loaders
-- Toast notifications for key actions
-- Lazy-loaded routes and polished UI transitions
-
----
-
-## UI Preview
-
-- Storefront: https://ecommerece-mern-web.vercel.app
-- Auth: https://ecommerece-mern-web.vercel.app/auth
-- Cart: https://ecommerece-mern-web.vercel.app/cart
-- Admin (requires admin account): https://ecommerece-mern-web.vercel.app/admin/products
+| | URL |
+|---|-----|
+| **Frontend (Vercel)** | [ecommerece-mern-web.vercel.app](https://ecommerece-mern-web.vercel.app) |
+| **Backend API** | [backend-two-weld-46.vercel.app](https://backend-two-weld-46.vercel.app) |
+| **Health** | [`/api/health`](https://backend-two-weld-46.vercel.app/api/health) |
+| **Repository** | [github.com/ihamidch/Ecommerece](https://github.com/ihamidch/Ecommerece) |
 
 ---
 
 ## Screenshots
 
-### Home
-![Home](docs/screenshots/home.png)
+| Home | Product |
+|:---:|:---:|
+| ![Home](docs/screenshots/home.png) | ![Product](docs/screenshots/product.png) |
 
-### Authentication
-![Authentication](docs/screenshots/auth.png)
+| Auth | Cart |
+|:---:|:---:|
+| ![Auth](docs/screenshots/auth.png) | ![Cart](docs/screenshots/cart.png) |
 
-### Cart
-![Cart](docs/screenshots/cart.png)
+| Checkout | Admin (products) |
+|:---:|:---:|
+| ![Checkout](docs/screenshots/checkout.png) | ![Admin](docs/screenshots/admin.png) |
 
-### Checkout
-![Checkout](docs/screenshots/checkout.png)
-
----
-
-## Tech Stack
-
-- Frontend: React, Vite, React Router, Axios, Tailwind CSS
-- Backend: Node.js, Express, Mongoose, JWT, bcryptjs, Multer, Cloudinary, Stripe
-- Database: MongoDB Atlas
-- Deployment: Vercel (frontend + backend)
+> **Regenerate images:** `cd frontend && npm run capture-screenshots`  
+> Optional env: `SCREENSHOT_SITE_URL`, `SCREENSHOT_API_URL` (defaults target the live demo).
 
 ---
 
-## Project Structure
+## Features
 
-```text
+- **Authentication & RBAC** — Signup/login, JWT access + refresh flow, protected routes (user vs admin).
+- **Catalog** — Search, filters (category, price, minimum rating), sorting, pagination.
+- **Product details** — Stock-aware quantity, reviews & ratings (authenticated).
+- **Cart & checkout** — Persistent cart; server sync when logged in; checkout + order success.
+- **Payments** — Stripe Payment Intents + Checkout Session API (mock mode when keys are absent).
+- **Orders** — User order history; admin order list and status updates.
+- **Admin** — Products CRUD, orders, users/roles, analytics (users, orders, paid revenue), Cloudinary-ready image upload.
+- **Quality** — Loading states, toasts, responsive layout, GitHub Actions CI (lint/build + API boot check).
+
+---
+
+## Tech stack
+
+| Layer | Technologies |
+|--------|----------------|
+| **Frontend** | React 19, Vite, React Router, Axios, Tailwind CSS, Context API, Sonner |
+| **Backend** | Node.js, Express, Mongoose, JWT, Zod, Helmet, express-rate-limit |
+| **Database** | MongoDB (Atlas) |
+| **Integrations** | Stripe, Cloudinary, bcrypt |
+| **Deploy** | Vercel (frontend + API) |
+
+*State is managed with **React Context** (not Redux) for auth and cart.*
+
+---
+
+## Repository layout
+
+This repo uses **`frontend/`** and **`backend/`** (common for Vite + Express). Conceptually:
+
+| In this repo | Same idea as |
+|--------------|----------------|
+| `frontend/` | **client** (React app) |
+| `backend/src/` | **server** (Express API) |
+
+```
 Ecommerece/
-├── frontend/                 # React + Vite app
-│   ├── src/api/              # Axios client
-│   ├── src/components/       # Reusable UI + layout
-│   ├── src/context/          # Auth/Cart providers
-│   ├── src/pages/            # Public/user/admin pages
-│   └── src/utils/            # Helpers
-├── backend/
-│   └── src/
-│       ├── controllers/      # Route handlers
-│       ├── middleware/       # auth, notFound, etc.
-│       ├── models/           # User/Product/Order schemas
-│       ├── routes/           # API route wiring
-│       ├── services/         # seed/utility services
-│       ├── app.js            # Express app config
-│       └── server.js         # DB + runtime bootstrap
+├── frontend/                 # React + Vite (UI)
+│   ├── src/
+│   │   ├── api/              # Axios client
+│   │   ├── components/     # Layout, UI, admin shell
+│   │   ├── context/        # Auth & cart
+│   │   ├── pages/          # Public + admin pages
+│   │   └── utils/          # Helpers
+│   └── .env.example
+├── backend/                  # Express API
+│   ├── src/
+│   │   ├── controllers/    # Request handlers
+│   │   ├── middleware/     # Auth, validation, logging, CORS, etc.
+│   │   ├── models/         # Mongoose schemas
+│   │   ├── routes/         # HTTP routes
+│   │   ├── services/       # Seeding & helpers
+│   │   ├── validation/     # Zod schemas
+│   │   ├── app.js
+│   │   └── server.js
+│   ├── scripts/
+│   └── .env.example
+├── docs/screenshots/         # UI captures for the README
+├── .github/workflows/        # CI
+├── CONTRIBUTING.md
 ├── DEPLOYMENT.md
+├── LICENSE
 └── README.md
 ```
 
 ---
 
-## REST API Overview
+## Quick start
 
-Base URL: `/api`
+### 1) Clone and install
 
-### Auth
-- `POST /auth/signup`
-- `POST /auth/login`
-- `POST /auth/logout` (protected)
-- `GET /auth/me` (protected)
-
-### Products
-- `GET /products`
-- `GET /products/categories`
-- `GET /products/:id`
-- `POST /products` (admin)
-- `PUT /products/:id` (admin)
-- `DELETE /products/:id` (admin)
-
-### Orders
-- `POST /orders` (protected)
-- `GET /orders/my` (protected)
-- `GET /orders/user` (protected)
-- `GET /orders/my-orders` (protected, backward-compatible)
-- `GET /orders/:id` (owner/admin)
-- `GET /orders` (admin)
-- `PUT /orders/:id/status` (admin)
-- `PATCH /orders/:id/status` (admin, backward-compatible)
-- `POST /orders/payment-intent` (protected)
-
-### Users (Admin)
-- `GET /users/me/cart` (protected)
-- `PUT /users/me/cart` (protected)
-- `GET /users`
-- `PATCH /users/:id/role`
-
-### Upload (Admin)
-- `POST /upload`
-
----
-
-## Environment Variables
-
-Use `.env.example` files as source of truth.
-
-### Backend (`backend/.env`)
-```env
-PORT=5000
-MONGO_URI=<mongodb-atlas-uri>
-JWT_SECRET=<strong-random-secret>
-CLIENT_URL=<frontend-production-url>
-CLIENT_URLS=<optional-comma-separated-origins>
-ALLOW_PREVIEW_ORIGINS=true
-AUTH_RATE_LIMIT_WINDOW_MS=600000
-AUTH_RATE_LIMIT_MAX=25
-ADMIN_EMAILS=admin@example.com
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-STRIPE_SECRET_KEY=
-```
-
-### Frontend (`frontend/.env`)
-```env
-VITE_API_URL=<backend-url>/api
-```
-
----
-
-## Local Setup
-
-### 1) Install dependencies
 ```bash
+git clone https://github.com/ihamidch/Ecommerece.git
+cd Ecommerece
 cd backend && npm install
 cd ../frontend && npm install
 ```
 
-### 2) Start backend
+### 2) Environment variables
+
+Copy the examples and fill in secrets:
+
 ```bash
-cd backend
-npm run dev
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 ```
 
-### 3) Start frontend
+- **Backend:** set `MONGO_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CLIENT_URL`, and (optional) Stripe / Cloudinary keys. See [Environment variables](#environment-variables) below.
+- **Frontend:** set `VITE_API_URL` to your backend base **including** `/api`, e.g. `https://your-api.vercel.app/api`.
+
+### 3) Run locally
+
 ```bash
-cd frontend
-npm run dev
+# Terminal 1 — API (default http://localhost:5000)
+cd backend && npm run dev
+
+# Terminal 2 — UI (default http://localhost:5173)
+cd frontend && npm run dev
 ```
 
-Frontend: `http://localhost:5173`  
-Backend: `http://localhost:5000`
+### 4) Quality checks
+
+```bash
+cd frontend && npm run lint && npm run build
+cd ../backend && node -e "require('./src/app')"
+```
 
 ---
 
-## Scripts
+## Environment variables
 
-### Backend
-- `npm run dev` - run API in watch mode
-- `npm run start` - production start
-- `npm run seed:demo` - seed demo products
-- `npm run cleanup:test-products` - remove test products
-- `npm run test:e2e` - API e2e smoke script
+**Never commit real secrets.** Use `.env` locally; production uses the host’s env UI (e.g. Vercel).
 
-### Frontend
-- `npm run dev`
-- `npm run lint`
-- `npm run build`
-- `npm run preview`
+### Backend (`backend/.env`) — see `backend/.env.example`
 
-### CI
-- GitHub Actions workflow runs frontend lint/build and backend boot checks on pushes/PRs
+| Variable | Purpose |
+|----------|---------|
+| `MONGO_URI` | MongoDB connection string (Atlas) |
+| `JWT_SECRET` | Access token signing secret |
+| `JWT_REFRESH_SECRET` | Refresh token secret (can match `JWT_SECRET` in dev only) |
+| `CLIENT_URL` | Primary frontend origin (CORS) |
+| `STRIPE_SECRET_KEY` | Stripe server secret (test mode) |
+| `CLOUDINARY_*` | Cloud name, API key, API secret (image upload) |
 
----
+> **Note:** This project uses `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` — not a single `CLOUDINARY_URL`. Some tools expect `CLOUDINARY_URL`; if you use one, map it in your host or split it into the three variables above.
 
-## Deployment Notes
+### Frontend (`frontend/.env`) — see `frontend/.env.example`
 
-- Configure backend env vars in Vercel project settings.
-- Configure frontend `VITE_API_URL` to your backend `/api` URL.
-- Redeploy frontend after changing backend URL/env.
-- For custom preview-domain behavior, adjust backend `ALLOW_PREVIEW_ORIGINS`.
-
-Detailed deployment steps: see `DEPLOYMENT.md`.
+| Variable | Purpose |
+|----------|---------|
+| `VITE_API_URL` | Public API base URL **ending with** `/api` |
 
 ---
 
-## Portfolio Summary
+## API reference (summary)
 
-This project demonstrates production-level MERN engineering:
-- secure authentication and authorization
-- full e-commerce workflow
-- admin operations
-- modern scalable frontend architecture
-- deployment-ready backend/API practices
+**Base path:** `/api` (e.g. `https://<host>/api/auth/login`).
+
+### Auth
+
+| Method | Path | Notes |
+|--------|------|--------|
+| `POST` | `/auth/signup` | Register |
+| `POST` | `/auth/login` | Login |
+| `POST` | `/auth/refresh` | New access + refresh tokens |
+| `POST` | `/auth/logout` | Auth required |
+| `GET` | `/auth/me` | Current user |
+
+### Products
+
+| Method | Path | Notes |
+|--------|------|--------|
+| `GET` | `/products` | Query: search, category, min/max price, minRating, sort, `page`, `limit` |
+| `GET` | `/products/categories` | Category list |
+| `GET` | `/products/:id` | Product detail + embedded reviews |
+| `POST` | `/products/:id/reviews` | Add/update review (auth) |
+| `POST` | `/products` | Create (admin) |
+| `PUT` | `/products/:id` | Update (admin) |
+| `DELETE` | `/products/:id` | Delete (admin) |
+
+### Orders
+
+| Method | Path | Notes |
+|--------|------|--------|
+| `POST` | `/orders` | Create order (auth) |
+| `GET` | `/orders/my` | User orders |
+| `GET` | `/orders/:id` | Order detail (owner or admin) |
+| `GET` | `/orders` | All orders (admin) |
+| `PUT` or `PATCH` | `/orders/:id/status` | Update status (admin) |
+| `POST` | `/orders/payment-intent` | Stripe PaymentIntent (auth) |
+| `POST` | `/orders/checkout-session` | Stripe Checkout URL (auth) |
+
+### Users & upload
+
+- Cart: `GET/PUT /users/me/cart` (auth)  
+- Wishlist: `GET /users/me/wishlist`, `POST /users/me/wishlist/:productId` (auth)  
+- Admin analytics: `GET /users/admin/analytics` (admin)  
+- Users: `GET /users`, `PATCH /users/:id/role` (admin)  
+- Upload: `POST /upload` (admin, image)
+
+---
+
+## Deployment
+
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for Vercel + MongoDB Atlas. After changing `VITE_API_URL` or CORS settings, **redeploy** the affected project.
+
+---
+
+## Suggested GitHub repository settings (manual)
+
+In the GitHub UI, add **About** description and **topics**, for example:
+
+`mern`, `ecommerce`, `react`, `nodejs`, `express`, `mongodb`, `stripe`, `tailwindcss`, `jwt`, `fullstack`, `vercel`
+
+---
+
+## Contributing
+
+See **[CONTRIBUTING.md](./CONTRIBUTING.md)**.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+---
+
+## Author
+
+| | |
+|---|--|
+| **Name** | Hamid Rafique |
+| **GitHub** | [@ihamidch](https://github.com/ihamidch) |
+| **Portfolio** | [porfolio-ihamidchs-projects.vercel.app](https://porfolio-ihamidchs-projects.vercel.app) |
+| **LinkedIn** | *Add your public profile URL here* |
+
+If you use this project in an interview, link this README and the **live demo** for the fastest “what I built” signal.

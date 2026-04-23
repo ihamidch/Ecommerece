@@ -217,6 +217,59 @@ async function createPaymentIntent(req, res, next) {
   }
 }
 
+async function createCheckoutSession(req, res, next) {
+  try {
+    const { cartItems, successUrl, cancelUrl } = req.body;
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      const error = new Error("cartItems are required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const clientBaseUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const resolvedSuccessUrl = successUrl || `${clientBaseUrl}/checkout?status=success`;
+    const resolvedCancelUrl = cancelUrl || `${clientBaseUrl}/checkout?status=cancelled`;
+
+    if (!stripe) {
+      return res.json({
+        checkoutUrl: `${resolvedSuccessUrl}&session_id=mock_checkout`,
+        mode: "mock",
+      });
+    }
+
+    const lineItems = cartItems.map((item) => ({
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: String(item.name || "Product"),
+          images: item.image ? [String(item.image)] : [],
+        },
+        unit_amount: Math.round(Number(item.price) * 100),
+      },
+      quantity: Math.max(1, Number(item.quantity) || 1),
+    }));
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: lineItems,
+      success_url: `${resolvedSuccessUrl}${resolvedSuccessUrl.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: resolvedCancelUrl,
+      customer_email: req.user?.email || undefined,
+      metadata: {
+        userId: String(req.user._id),
+      },
+    });
+
+    return res.json({
+      checkoutUrl: session.url,
+      sessionId: session.id,
+      mode: "stripe",
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   createOrder,
   getMyOrders,
@@ -224,4 +277,5 @@ module.exports = {
   getAllOrders,
   updateOrderStatus,
   createPaymentIntent,
+  createCheckoutSession,
 };
