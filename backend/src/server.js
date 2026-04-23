@@ -32,8 +32,10 @@ if (process.env.VERCEL) {
   connectDb()
     .then(() => {
       app.listen(PORT, () => {
-        // eslint-disable-next-line no-console
-        console.log(`Backend running on port ${PORT}`);
+        if (process.env.NODE_ENV !== "production") {
+          // eslint-disable-next-line no-console -- local dev visibility only
+          console.log(`Backend running on port ${PORT}`);
+        }
       });
     })
     .catch((error) => {

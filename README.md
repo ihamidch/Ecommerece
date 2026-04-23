@@ -1,27 +1,33 @@
-# MERN E-commerce SaaS Platform
+# 🛒 MERN E-commerce SaaS Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
 [![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com/)
 
-Full-stack **MERN** e-commerce application with **JWT authentication**, **role-based admin tools**, **cart → checkout → orders**, **reviews & ratings**, and a **modern Tailwind UI**. The API is structured for clarity (controllers, routes, models, middleware) and is intended to read as **job-ready** and **deployable**.
+---
+
+## 📌 Overview
+
+A **production-style** full-stack e-commerce app on the **MERN** stack: **JWT auth** (access + refresh), **role-based admin**, **catalog with search / filters / pagination / reviews**, **cart and checkout**, **orders**, **Stripe-ready payments**, and **Cloudinary-ready uploads**—with a **Tailwind** UI suitable for portfolio and interviews.
+
+This is an **evolved codebase** (not a throwaway demo): clear separation between UI and API, environment-based configuration, and CI checks.
 
 ---
 
-## Live demo
+## 🚀 Live demo
 
-| | URL |
-|---|-----|
-| **Frontend (Vercel)** | [ecommerece-mern-web.vercel.app](https://ecommerece-mern-web.vercel.app) |
-| **Backend API** | [backend-two-weld-46.vercel.app](https://backend-two-weld-46.vercel.app) |
-| **Health** | [`/api/health`](https://backend-two-weld-46.vercel.app/api/health) |
-| **Repository** | [github.com/ihamidch/Ecommerece](https://github.com/ihamidch/Ecommerece) |
+| | Link |
+|---|------|
+| **Frontend** | [https://ecommerece-mern-web.vercel.app](https://ecommerece-mern-web.vercel.app) |
+| **Backend API** | [https://backend-two-weld-46.vercel.app](https://backend-two-weld-46.vercel.app) |
+| **Health** | [https://backend-two-weld-46.vercel.app/api/health](https://backend-two-weld-46.vercel.app/api/health) |
+| **Source** | [https://github.com/ihamidch/Ecommerece](https://github.com/ihamidch/Ecommerece) |
 
 ---
 
-## Screenshots
+## 📸 Screenshots
 
 | Home | Product |
 |:---:|:---:|
@@ -31,231 +37,215 @@ Full-stack **MERN** e-commerce application with **JWT authentication**, **role-b
 |:---:|:---:|
 | ![Auth](docs/screenshots/auth.png) | ![Cart](docs/screenshots/cart.png) |
 
-| Checkout | Admin (products) |
+| Checkout | Admin |
 |:---:|:---:|
 | ![Checkout](docs/screenshots/checkout.png) | ![Admin](docs/screenshots/admin.png) |
 
-> **Regenerate images:** `cd frontend && npm run capture-screenshots`  
-> Optional env: `SCREENSHOT_SITE_URL`, `SCREENSHOT_API_URL` (defaults target the live demo).
+**Regenerate:** `cd frontend && npm run capture-screenshots`  
+(Optional: `SCREENSHOT_SITE_URL`, `SCREENSHOT_API_URL`.)
 
 ---
 
-## Features
+## ✨ Features
 
-- **Authentication & RBAC** — Signup/login, JWT access + refresh flow, protected routes (user vs admin).
-- **Catalog** — Search, filters (category, price, minimum rating), sorting, pagination.
-- **Product details** — Stock-aware quantity, reviews & ratings (authenticated).
-- **Cart & checkout** — Persistent cart; server sync when logged in; checkout + order success.
-- **Payments** — Stripe Payment Intents + Checkout Session API (mock mode when keys are absent).
-- **Orders** — User order history; admin order list and status updates.
-- **Admin** — Products CRUD, orders, users/roles, analytics (users, orders, paid revenue), Cloudinary-ready image upload.
-- **Quality** — Loading states, toasts, responsive layout, GitHub Actions CI (lint/build + API boot check).
-
----
-
-## Tech stack
-
-| Layer | Technologies |
-|--------|----------------|
-| **Frontend** | React 19, Vite, React Router, Axios, Tailwind CSS, Context API, Sonner |
-| **Backend** | Node.js, Express, Mongoose, JWT, Zod, Helmet, express-rate-limit |
-| **Database** | MongoDB (Atlas) |
-| **Integrations** | Stripe, Cloudinary, bcrypt |
-| **Deploy** | Vercel (frontend + API) |
-
-*State is managed with **React Context** (not Redux) for auth and cart.*
+- 🔐 **JWT authentication** — signup/login, access + refresh tokens, logout, protected API routes  
+- 👤 **Authorization (RBAC)** — `user` vs `admin`; admin-only catalog and order management  
+- 🛍️ **Product management (admin)** — CRUD, inventory, categories, Cloudinary image upload  
+- 🛒 **Cart** — add/update/remove; **localStorage** + **server sync** when logged in  
+- 💳 **Checkout** — shipping + totals; Stripe **PaymentIntent** and **Checkout Session** (mock without keys)  
+- 📦 **Orders** — create, history, admin status updates  
+- ⭐ **Reviews & ratings** — authenticated reviews; aggregate rating on products  
+- 🔍 **Search & filters** — name, category, price range, minimum rating  
+- 📄 **Pagination & sorting** — catalog pagination and sort options  
+- 🧪 **CI** — GitHub Actions: frontend lint/build + backend boot check  
 
 ---
 
-## Repository layout
+## 🛠️ Tech stack
 
-This repo uses **`frontend/`** and **`backend/`** (common for Vite + Express). Conceptually:
+| Area | Stack |
+|------|--------|
+| **Frontend** | React 19, **Vite**, React Router, Axios, **Tailwind CSS**, Context API, Sonner |
+| **Backend** | Node.js, **Express**, Mongoose, JWT, Zod, Helmet, rate limiting |
+| **Database** | **MongoDB** (Atlas) |
+| **Payments** | **Stripe** (test keys supported) |
+| **Media** | **Cloudinary** (via Multer on the API) |
+| **Deploy** | **Vercel** (frontend + API) |
 
-| In this repo | Same idea as |
-|--------------|----------------|
-| `frontend/` | **client** (React app) |
-| `backend/src/` | **server** (Express API) |
-
-```
-Ecommerece/
-├── frontend/                 # React + Vite (UI)
-│   ├── src/
-│   │   ├── api/              # Axios client
-│   │   ├── components/     # Layout, UI, admin shell
-│   │   ├── context/        # Auth & cart
-│   │   ├── pages/          # Public + admin pages
-│   │   └── utils/          # Helpers
-│   └── .env.example
-├── backend/                  # Express API
-│   ├── src/
-│   │   ├── controllers/    # Request handlers
-│   │   ├── middleware/     # Auth, validation, logging, CORS, etc.
-│   │   ├── models/         # Mongoose schemas
-│   │   ├── routes/         # HTTP routes
-│   │   ├── services/       # Seeding & helpers
-│   │   ├── validation/     # Zod schemas
-│   │   ├── app.js
-│   │   └── server.js
-│   ├── scripts/
-│   └── .env.example
-├── docs/screenshots/         # UI captures for the README
-├── .github/workflows/        # CI
-├── CONTRIBUTING.md
-├── DEPLOYMENT.md
-├── LICENSE
-└── README.md
-```
+> **Note:** This repo uses **React + Vite** (not Next.js) and **Context API** (not Redux), by design—lighter weight and common for MERN portfolios.
 
 ---
 
-## Quick start
+## 📁 Project structure (clean & logical)
 
-### 1) Clone and install
+Folders are named **`frontend/`** and **`backend/`** (standard for Vite + Express). They map cleanly to what many courses call **client** and **server**:
 
-```bash
-git clone https://github.com/ihamidch/Ecommerece.git
-cd Ecommerece
-cd backend && npm install
-cd ../frontend && npm install
-```
-
-### 2) Environment variables
-
-Copy the examples and fill in secrets:
-
-```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-```
-
-- **Backend:** set `MONGO_URI`, `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CLIENT_URL`, and (optional) Stripe / Cloudinary keys. See [Environment variables](#environment-variables) below.
-- **Frontend:** set `VITE_API_URL` to your backend base **including** `/api`, e.g. `https://your-api.vercel.app/api`.
-
-### 3) Run locally
-
-```bash
-# Terminal 1 — API (default http://localhost:5000)
-cd backend && npm run dev
-
-# Terminal 2 — UI (default http://localhost:5173)
-cd frontend && npm run dev
-```
-
-### 4) Quality checks
-
-```bash
-cd frontend && npm run lint && npm run build
-cd ../backend && node -e "require('./src/app')"
-```
+| Path | Role |
+|------|------|
+| `frontend/` | **Client** — React UI (`components/`, `pages/`, `context/`, `api/`) |
+| `backend/src/controllers/` | **Controllers** — HTTP handlers |
+| `backend/src/routes/` | **Routes** — Express routers |
+| `backend/src/models/` | **Models** — Mongoose schemas |
+| `backend/src/middleware/` | **Middleware** — auth, validation, CORS, logging, errors |
+| `backend/src/services/` | **Services** — seeding & helpers |
+| `backend/src/validation/` | **Validation** — Zod schemas |
 
 ---
 
-## Environment variables
+## ⚙️ Installation
 
-**Never commit real secrets.** Use `.env` locally; production uses the host’s env UI (e.g. Vercel).
+1. **Clone**
 
-### Backend (`backend/.env`) — see `backend/.env.example`
+   ```bash
+   git clone https://github.com/ihamidch/Ecommerece.git
+   cd Ecommerece
+   ```
+
+2. **Install dependencies** (API + client)
+
+   ```bash
+   cd backend && npm install
+   cd ../frontend && npm install
+   ```
+
+3. **Environment** — copy examples and fill values (see below)
+
+   ```bash
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   ```
+
+4. **Run**
+
+   ```bash
+   # Terminal 1 — API (default http://localhost:5000)
+   cd backend && npm run dev
+
+   # Terminal 2 — UI (default http://localhost:5173)
+   cd frontend && npm run dev
+   ```
+
+5. **Checks (optional)**
+
+   ```bash
+   cd frontend && npm run lint && npm run build
+   cd ../backend && node -e "require('./src/app')"
+   ```
+
+---
+
+## 🔐 Environment variables
+
+**Never commit secrets.** Use `.env` locally; use your host’s env UI in production.
+
+### Backend (`backend/.env.example`)
 
 | Variable | Purpose |
 |----------|---------|
-| `MONGO_URI` | MongoDB connection string (Atlas) |
+| `MONGO_URI` | MongoDB connection string |
 | `JWT_SECRET` | Access token signing secret |
-| `JWT_REFRESH_SECRET` | Refresh token secret (can match `JWT_SECRET` in dev only) |
-| `CLIENT_URL` | Primary frontend origin (CORS) |
-| `STRIPE_SECRET_KEY` | Stripe server secret (test mode) |
-| `CLOUDINARY_*` | Cloud name, API key, API secret (image upload) |
+| `JWT_REFRESH_SECRET` | Refresh token secret (use a strong value in production) |
+| `CLIENT_URL` | Primary frontend URL (CORS) |
+| `CLIENT_URLS` | Optional extra origins (comma-separated) |
+| `STRIPE_SECRET_KEY` | Stripe secret (optional; mock without it) |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
+| `CLOUDINARY_API_KEY` | Cloudinary API key |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret |
 
-> **Note:** This project uses `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` — not a single `CLOUDINARY_URL`. Some tools expect `CLOUDINARY_URL`; if you use one, map it in your host or split it into the three variables above.
+**About `CLOUDINARY_URL`:** some platforms document a single connection string. **This codebase expects the three variables above** (not `CLOUDINARY_URL`). If you only have a URL string, split/map it in your host or convert to the three fields.
 
-### Frontend (`frontend/.env`) — see `frontend/.env.example`
+### Frontend (`frontend/.env.example`)
 
 | Variable | Purpose |
 |----------|---------|
-| `VITE_API_URL` | Public API base URL **ending with** `/api` |
+| `VITE_API_URL` | Backend base URL **including** `/api` (e.g. `https://your-api.vercel.app/api`) |
 
 ---
 
-## API reference (summary)
+## 📡 API endpoints
 
-**Base path:** `/api` (e.g. `https://<host>/api/auth/login`).
+All routes are under **`/api`** (example: `POST https://<host>/api/auth/login`).
 
 ### Auth
 
-| Method | Path | Notes |
-|--------|------|--------|
-| `POST` | `/auth/signup` | Register |
-| `POST` | `/auth/login` | Login |
-| `POST` | `/auth/refresh` | New access + refresh tokens |
-| `POST` | `/auth/logout` | Auth required |
-| `GET` | `/auth/me` | Current user |
+| Method | Path |
+|--------|------|
+| `POST` | `/api/auth/signup` |
+| `POST` | `/api/auth/login` |
+| `POST` | `/api/auth/refresh` |
+| `POST` | `/api/auth/logout` 🔒 |
+| `GET` | `/api/auth/me` 🔒 |
+
+🔒 = requires `Authorization: Bearer <accessToken>`
 
 ### Products
 
-| Method | Path | Notes |
-|--------|------|--------|
-| `GET` | `/products` | Query: search, category, min/max price, minRating, sort, `page`, `limit` |
-| `GET` | `/products/categories` | Category list |
-| `GET` | `/products/:id` | Product detail + embedded reviews |
-| `POST` | `/products/:id/reviews` | Add/update review (auth) |
-| `POST` | `/products` | Create (admin) |
-| `PUT` | `/products/:id` | Update (admin) |
-| `DELETE` | `/products/:id` | Delete (admin) |
+| Method | Path |
+|--------|------|
+| `GET` | `/api/products` |
+| `GET` | `/api/products/categories` |
+| `GET` | `/api/products/:id` |
+| `POST` | `/api/products/:id/reviews` 🔒 |
+| `POST` | `/api/products` 🔒👑 |
+| `PUT` | `/api/products/:id` 🔒👑 |
+| `DELETE` | `/api/products/:id` 🔒👑 |
+
+👑 = admin only
 
 ### Orders
 
-| Method | Path | Notes |
-|--------|------|--------|
-| `POST` | `/orders` | Create order (auth) |
-| `GET` | `/orders/my` | User orders |
-| `GET` | `/orders/:id` | Order detail (owner or admin) |
-| `GET` | `/orders` | All orders (admin) |
-| `PUT` or `PATCH` | `/orders/:id/status` | Update status (admin) |
-| `POST` | `/orders/payment-intent` | Stripe PaymentIntent (auth) |
-| `POST` | `/orders/checkout-session` | Stripe Checkout URL (auth) |
+| Method | Path |
+|--------|------|
+| `POST` | `/api/orders` 🔒 |
+| `GET` | `/api/orders/my` 🔒 |
+| `GET` | `/api/orders/:id` 🔒 |
+| `GET` | `/api/orders` 🔒👑 |
+| `PUT` / `PATCH` | `/api/orders/:id/status` 🔒👑 |
+| `POST` | `/api/orders/payment-intent` 🔒 |
+| `POST` | `/api/orders/checkout-session` 🔒 |
 
-### Users & upload
+### Users, wishlist, analytics, upload
 
-- Cart: `GET/PUT /users/me/cart` (auth)  
-- Wishlist: `GET /users/me/wishlist`, `POST /users/me/wishlist/:productId` (auth)  
-- Admin analytics: `GET /users/admin/analytics` (admin)  
-- Users: `GET /users`, `PATCH /users/:id/role` (admin)  
-- Upload: `POST /upload` (admin, image)
-
----
-
-## Deployment
-
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for Vercel + MongoDB Atlas. After changing `VITE_API_URL` or CORS settings, **redeploy** the affected project.
+| Method | Path |
+|--------|------|
+| `GET` / `PUT` | `/api/users/me/cart` 🔒 |
+| `GET` | `/api/users/me/wishlist` 🔒 |
+| `POST` | `/api/users/me/wishlist/:productId` 🔒 |
+| `GET` | `/api/users/admin/analytics` 🔒👑 |
+| `GET` | `/api/users` 🔒👑 |
+| `PATCH` | `/api/users/:id/role` 🔒👑 |
+| `POST` | `/api/upload` 🔒👑 |
 
 ---
 
-## Suggested GitHub repository settings (manual)
+## 🚢 Deployment
 
-In the GitHub UI, add **About** description and **topics**, for example:
-
-`mern`, `ecommerce`, `react`, `nodejs`, `express`, `mongodb`, `stripe`, `tailwindcss`, `jwt`, `fullstack`, `vercel`
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)**. After changing `VITE_API_URL` or CORS-related vars, **redeploy** the affected Vercel project.
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 See **[CONTRIBUTING.md](./CONTRIBUTING.md)**.
 
 ---
 
-## License
+## 📄 License
 
-This project is licensed under the [MIT License](./LICENSE).
+[MIT License](./LICENSE)
 
 ---
 
-## Author
+## 👨‍💻 Author
 
-| | |
-|---|--|
-| **Name** | Hamid Rafique |
-| **GitHub** | [@ihamidch](https://github.com/ihamidch) |
-| **Portfolio** | [porfolio-ihamidchs-projects.vercel.app](https://porfolio-ihamidchs-projects.vercel.app) |
-| **LinkedIn** | *Add your public profile URL here* |
+**Hamid Rafique**
 
-If you use this project in an interview, link this README and the **live demo** for the fastest “what I built” signal.
+- **GitHub:** [https://github.com/ihamidch](https://github.com/ihamidch)  
+- **Portfolio:** [https://porfolio-ihamidchs-projects.vercel.app](https://porfolio-ihamidchs-projects.vercel.app)  
+- **LinkedIn:** *[add your public profile URL here]*
+
+---
+
+## 📌 GitHub repository settings (copy-paste)
+
+See **[REPO_SETTINGS.md](./REPO_SETTINGS.md)** for the suggested **description** and **topics** for the GitHub “About” section.
