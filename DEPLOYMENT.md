@@ -18,7 +18,6 @@ ADMIN_EMAILS=admin@example.com
 CLOUDINARY_CLOUD_NAME=<optional>
 CLOUDINARY_API_KEY=<optional>
 CLOUDINARY_API_SECRET=<optional>
-STRIPE_SECRET_KEY=<optional>
 ```
 
 4. Deploy and verify:

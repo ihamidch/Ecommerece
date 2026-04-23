@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import api from '../api/client'
 import { useAuth } from '../context/AuthContext'
@@ -24,47 +24,12 @@ const FIELD_LABELS = {
 
 function CheckoutPage() {
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useAuth()
   const { cartItems, subtotal, clearCart } = useCart()
   const [shippingAddress, setShippingAddress] = useState(initialAddress)
-  const [paymentMethod, setPaymentMethod] = useState('mock')
-  const [stripeEnabled, setStripeEnabled] = useState(false)
   const [loading, setLoading] = useState(false)
   const shippingCost = 0
   const finalTotal = subtotal + shippingCost
-
-  useEffect(() => {
-    let ignore = false
-    ;(async () => {
-      try {
-        const { data } = await api.get('/orders/stripe/config')
-        if (ignore) return
-        const enabled = Boolean(data?.stripeEnabled)
-        setStripeEnabled(enabled)
-        if (!enabled) {
-          setPaymentMethod((m) => (m === 'stripe' ? 'mock' : m))
-        }
-      } catch {
-        if (!ignore) {
-          setStripeEnabled(false)
-          setPaymentMethod((m) => (m === 'stripe' ? 'mock' : m))
-        }
-      }
-    })()
-    return () => {
-      ignore = true
-    }
-  }, [])
-
-  useEffect(() => {
-    if (searchParams.get('cancelled') === '1') {
-      toast.info('Stripe checkout was cancelled')
-      const next = new URLSearchParams(searchParams)
-      next.delete('cancelled')
-      setSearchParams(next, { replace: true })
-    }
-  }, [searchParams, setSearchParams])
 
   const handleChange = (event) => {
     setShippingAddress((prev) => ({ ...prev, [event.target.name]: event.target.value }))
@@ -79,32 +44,6 @@ function CheckoutPage() {
 
     try {
       setLoading(true)
-
-      if (paymentMethod === 'stripe') {
-        if (!stripeEnabled) {
-          toast.error('Stripe is not configured on the server. Use mock payment or add STRIPE_SECRET_KEY.')
-          return
-        }
-
-        const origin = window.location.origin
-        const successUrl = `${origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`
-        const cancelUrl = `${origin}/checkout?cancelled=1`
-
-        const { data } = await api.post('/orders/checkout-session', {
-          cartItems,
-          shippingAddress,
-          successUrl,
-          cancelUrl,
-        })
-
-        if (!data?.checkoutUrl) {
-          toast.error('Could not start Stripe checkout')
-          return
-        }
-
-        window.location.assign(data.checkoutUrl)
-        return
-      }
 
       const { data: order } = await api.post('/orders', {
         cartItems,
@@ -182,41 +121,9 @@ function CheckoutPage() {
 
             <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-slate-900">Payment</h2>
-              <div className="mt-4 flex flex-wrap gap-6">
-                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-800">
-                  <input
-                    type="radio"
-                    className="h-4 w-4 border-slate-300 text-indigo-600"
-                    checked={paymentMethod === 'mock'}
-                    onChange={() => setPaymentMethod('mock')}
-                  />
-                  Mock payment (instant)
-                </label>
-                <label
-                  className={`flex items-center gap-2 text-sm font-medium ${
-                    stripeEnabled ? 'cursor-pointer text-slate-800' : 'cursor-not-allowed text-slate-400'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    className="h-4 w-4 border-slate-300 text-indigo-600 disabled:opacity-50"
-                    checked={paymentMethod === 'stripe'}
-                    disabled={!stripeEnabled}
-                    onChange={() => setPaymentMethod('stripe')}
-                  />
-                  {stripeEnabled ? 'Card (Stripe Checkout)' : 'Card (Stripe — add STRIPE_SECRET_KEY on API)'}
-                </label>
-              </div>
-              {stripeEnabled ? (
-                <p className="mt-3 text-xs text-slate-500">
-                  You will be redirected to Stripe to pay securely. Your order is created only after payment succeeds.
-                </p>
-              ) : (
-                <p className="mt-3 text-xs text-slate-500">
-                  For real card payments, configure <span className="font-mono">STRIPE_SECRET_KEY</span> on the backend
-                  (test mode is fine) and redeploy the API.
-                </p>
-              )}
+              <p className="mt-3 text-sm text-slate-600">
+                Demo checkout: your order is marked as paid immediately (no real card processing).
+              </p>
             </section>
 
             <button
@@ -224,7 +131,7 @@ function CheckoutPage() {
               disabled={loading}
               className="btn-primary px-8 py-3 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? (paymentMethod === 'stripe' ? 'Redirecting…' : 'Placing order…') : 'Place order'}
+              {loading ? 'Placing order…' : 'Place order'}
             </button>
           </form>
         </div>

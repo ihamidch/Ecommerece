@@ -79,16 +79,6 @@ async function run() {
     throw new Error("Products listing failed");
   }
 
-  const paymentIntent = await api.post(
-    "/orders/payment-intent",
-    { amount: 199 },
-    { headers: { Authorization: `Bearer ${userToken}` } }
-  );
-
-  if (!paymentIntent.data.clientSecret) {
-    throw new Error("Payment intent endpoint failed");
-  }
-
   const createdOrder = await api.post(
     "/orders",
     {

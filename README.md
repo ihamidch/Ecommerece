@@ -10,9 +10,11 @@
 
 ## 📌 Overview
 
-A **production-style** full-stack e-commerce app on the **MERN** stack: **JWT auth** (access + refresh), **role-based admin**, **catalog with search / filters / pagination / reviews**, **cart and checkout**, **orders**, **Stripe-ready payments**, and **Cloudinary-ready uploads**—with a **Tailwind** UI suitable for portfolio and interviews.
+A **production-style** full-stack e-commerce app on the **MERN** stack: **JWT auth** (access + refresh), **role-based admin**, **catalog with search / filters / pagination / reviews**, **cart and checkout**, **orders** (demo / mock payment), and **Cloudinary-ready uploads**—with a **Tailwind** UI suitable for portfolio and interviews.
 
 This is an **evolved codebase** (not a throwaway demo): clear separation between UI and API, environment-based configuration, and CI checks.
+
+**Payments:** There is **no** Stripe or card processor. Checkout uses **mock payment** only: the API creates a **paid** order for demos and learning. To add a real gateway later, you would integrate a new provider in the backend and UI.
 
 ---
 
@@ -52,7 +54,7 @@ This is an **evolved codebase** (not a throwaway demo): clear separation between
 - 👤 **Authorization (RBAC)** — `user` vs `admin`; admin-only catalog and order management  
 - 🛍️ **Product management (admin)** — CRUD, inventory, categories, Cloudinary image upload  
 - 🛒 **Cart** — add/update/remove; **localStorage** + **server sync** when logged in  
-- 💳 **Checkout** — shipping + totals; Stripe **PaymentIntent** and **Checkout Session** (mock without keys)  
+- 💳 **Checkout** — shipping + totals; **mock payment** (instant “paid” for demos)  
 - 📦 **Orders** — create, history, admin status updates  
 - ⭐ **Reviews & ratings** — authenticated reviews; aggregate rating on products  
 - 🔍 **Search & filters** — name, category, price range, minimum rating  
@@ -68,7 +70,7 @@ This is an **evolved codebase** (not a throwaway demo): clear separation between
 | **Frontend** | React 19, **Vite**, React Router, Axios, **Tailwind CSS**, Context API, Sonner |
 | **Backend** | Node.js, **Express**, Mongoose, JWT, Zod, Helmet, rate limiting |
 | **Database** | **MongoDB** (Atlas) |
-| **Payments** | **Stripe** (test keys supported) |
+| **Payments** | **Mock** (no card processor) |
 | **Media** | **Cloudinary** (via Multer on the API) |
 | **Deploy** | **Vercel** (frontend + API) |
 
@@ -147,10 +149,13 @@ Folders are named **`frontend/`** and **`backend/`** (standard for Vite + Expres
 | `JWT_REFRESH_SECRET` | Refresh token secret (use a strong value in production) |
 | `CLIENT_URL` | Primary frontend URL (CORS) |
 | `CLIENT_URLS` | Optional extra origins (comma-separated) |
-| `STRIPE_SECRET_KEY` | Stripe secret (optional; mock without it) |
+| `ADMIN_EMAILS` | Comma-separated emails that receive **admin** role on signup |
+| `ALLOW_PREVIEW_ORIGINS` | Optional; when `true`, allows `*.vercel.app` / `*.onrender.com` in production CORS |
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name |
 | `CLOUDINARY_API_KEY` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `SKIP_AUTO_DEMO_SEED` | Optional; set `true` to skip auto-seeding demo products when the catalog is empty |
+| `PORT` | Optional; API port (default **5000** locally) |
 
 **About `CLOUDINARY_URL`:** some platforms document a single connection string. **This codebase expects the three variables above** (not `CLOUDINARY_URL`). If you only have a URL string, split/map it in your host or convert to the three fields.
 
@@ -201,10 +206,8 @@ All routes are under **`/api`** (example: `POST https://<host>/api/auth/login`).
 | `GET` | `/api/orders/:id` 🔒 |
 | `GET` | `/api/orders` 🔒👑 |
 | `PUT` / `PATCH` | `/api/orders/:id/status` 🔒👑 |
-| `POST` | `/api/orders/payment-intent` 🔒 |
-| `POST` | `/api/orders/checkout-session` 🔒 |
-| `POST` | `/api/orders/stripe/complete` 🔒 |
-| `GET` | `/api/orders/stripe/config` |
+
+`POST /api/orders` expects a cart, shipping address, and **`paymentMethod: "mock"`** (the only supported value). The server rejects other payment methods.
 
 ### Users, wishlist, analytics, upload
 

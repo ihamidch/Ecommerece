@@ -5,7 +5,7 @@ Apply these in your repository on GitHub: **Settings** is not required for the b
 ## Description (About)
 
 ```
-MERN E-commerce SaaS Platform with authentication, admin dashboard, cart/checkout, orders, Stripe-ready payments, and Cloudinary-ready uploads.
+MERN E-commerce SaaS Platform with authentication, admin dashboard, cart/checkout, orders (mock payment), and Cloudinary-ready uploads.
 ```
 
 ## Website (optional)
@@ -29,7 +29,6 @@ mongodb
 mongoose
 jwt
 tailwindcss
-stripe
 cloudinary
 fullstack
 saas
